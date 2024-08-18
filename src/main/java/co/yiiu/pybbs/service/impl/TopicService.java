@@ -67,6 +67,7 @@ public class TopicService implements ITopicService {
         page = topicMapper.selectAll(page, tab);
         // 查询话题的标签
         tagService.selectTagsByTopicId(page);
+
         return page;
     }
 

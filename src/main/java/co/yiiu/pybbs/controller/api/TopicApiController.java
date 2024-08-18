@@ -8,8 +8,11 @@ import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.model.vo.CommentsByTopic;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.IpUtil;
+import co.yiiu.pybbs.util.MyPage;
 import co.yiiu.pybbs.util.Result;
 import co.yiiu.pybbs.util.SensitiveWordUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +29,7 @@ import java.util.Map;
  * Copyright (c) 2018, All Rights Reserved.
  * https://atjiu.github.io
  */
+@Api(tags = "问题")
 @RestController
 @RequestMapping("/api/topic")
 public class TopicApiController extends BaseApiController {
@@ -41,7 +45,16 @@ public class TopicApiController extends BaseApiController {
     @Resource
     private ICollectService collectService;
 
+    //查看所有话题
+    @ApiOperation(value = "问题列表")
+    @GetMapping("/list")
+    public Result list(@RequestParam(value = "page", defaultValue = "1") Integer pageNo, @RequestParam(value = "tab", defaultValue = "all") String tab) {
+        MyPage<Map<String, Object>> page = topicService.selectAll(pageNo, tab);
+        return success(page);
+    }
+
     // 话题详情
+    @ApiOperation(value = "问题详情")
     @GetMapping("/{id}")
     public Result detail(@PathVariable Integer id, HttpServletRequest request) {
         Map<String, Object> map = new HashMap<>();
@@ -76,6 +89,7 @@ public class TopicApiController extends BaseApiController {
     }
 
     // 保存话题
+    @ApiOperation(value = "创建问题")
     @PostMapping
     public Result create(@RequestBody Map<String, String> body) {
         User user = getApiUser();
@@ -99,6 +113,7 @@ public class TopicApiController extends BaseApiController {
     }
 
     // 更新话题
+    @ApiOperation(value = "更新问题")
     @PutMapping(value = "/{id}")
     public Result edit(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         User user = getApiUser();
@@ -117,6 +132,7 @@ public class TopicApiController extends BaseApiController {
     }
 
     // 删除话题
+    @ApiOperation(value = "删除问题")
     @DeleteMapping("{id}")
     public Result delete(@PathVariable Integer id) {
         User user = getApiUser();
@@ -125,6 +141,7 @@ public class TopicApiController extends BaseApiController {
         topicService.delete(topic);
         return success();
     }
+
 
     @GetMapping("/{id}/vote")
     public Result vote(@PathVariable Integer id) {

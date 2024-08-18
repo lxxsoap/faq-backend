@@ -5,6 +5,8 @@ import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.MyPage;
 import co.yiiu.pybbs.util.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -17,6 +19,7 @@ import java.util.Map;
  * Copyright (c) 2018, All Rights Reserved.
  * https://atjiu.github.io
  */
+@Api(tags = "用户")
 @RestController
 @RequestMapping("/api/user")
 public class UserApiController extends BaseApiController {
@@ -33,6 +36,7 @@ public class UserApiController extends BaseApiController {
     private IOAuthUserService oAuthUserService;
 
     // 用户的个人信息
+    @ApiOperation(value = "用户个人信息")
     @GetMapping("/{username}")
     public Result profile(@PathVariable String username) {
         // 查询用户个人信息
@@ -56,6 +60,7 @@ public class UserApiController extends BaseApiController {
     }
 
     // 用户发布的话题
+    @ApiOperation(value = "用户发布的问题")
     @GetMapping("/{username}/topics")
     public Result topics(@PathVariable String username, @RequestParam(defaultValue = "1") Integer pageNo) {
         // 查询用户个人信息
@@ -69,6 +74,7 @@ public class UserApiController extends BaseApiController {
     }
 
     // 用户评论列表
+    @ApiOperation(value = "用户评论列表")
     @GetMapping("/{username}/comments")
     public Result comments(@PathVariable String username, @RequestParam(defaultValue = "1") Integer pageNo) {
         // 查询用户个人信息
@@ -82,6 +88,7 @@ public class UserApiController extends BaseApiController {
     }
 
     // 用户收藏的话题
+    @ApiOperation(value = "用户收藏的问题")
     @GetMapping("/{username}/collects")
     public Result collects(@PathVariable String username, @RequestParam(defaultValue = "1") Integer pageNo) {
         // 查询用户个人信息

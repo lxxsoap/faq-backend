@@ -9,6 +9,8 @@ import co.yiiu.pybbs.service.IUserService;
 import co.yiiu.pybbs.util.Result;
 import co.yiiu.pybbs.util.StringUtil;
 import co.yiiu.pybbs.util.bcrypt.BCryptPasswordEncoder;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,7 @@ import java.util.Map;
  * Copyright (c) 2018, All Rights Reserved.
  * https://atjiu.github.io
  */
+@Api(tags = "设置")
 @RestController
 @RequestMapping("/api/settings")
 public class SettingsApiController extends BaseApiController {
@@ -33,6 +36,7 @@ public class SettingsApiController extends BaseApiController {
     private ISystemConfigService systemConfigService;
 
     // 更新用户个人信息
+    @ApiOperation(value = "更新用户个人信息")
     @PutMapping
     public Result update(@RequestBody Map<String, String> body, HttpSession session) {
         User user = getApiUser();
@@ -57,6 +61,7 @@ public class SettingsApiController extends BaseApiController {
     }
 
     // 发送激活邮件
+    @ApiOperation(value = "发送激活邮件")
     @GetMapping("/sendActiveEmail")
     public Result sendActiveEmail() {
         User user = getApiUser();
@@ -80,6 +85,7 @@ public class SettingsApiController extends BaseApiController {
     }
 
     // 发送邮箱验证码
+    @ApiOperation(value = "发送邮箱验证码")
     @GetMapping("/sendEmailCode")
     public Result sendEmailCode(String email) {
         User user = getApiUser();
@@ -95,6 +101,7 @@ public class SettingsApiController extends BaseApiController {
     }
 
     // 更新用户邮箱
+    @ApiOperation(value = "更新用户邮箱")
     @PutMapping("/updateEmail")
     public Result updateEmail(@RequestBody Map<String, String> body, HttpSession session) {
         User user = getApiUser();
@@ -121,6 +128,7 @@ public class SettingsApiController extends BaseApiController {
     }
 
     // 修改密码
+    @ApiOperation(value = "修改密码")
     @PutMapping("/updatePassword")
     public Result updatePassword(@RequestBody Map<String, String> body) {
         User user = getApiUser();
@@ -140,6 +148,7 @@ public class SettingsApiController extends BaseApiController {
     }
 
     // 刷新token
+    @ApiOperation(value = "刷新token")
     @GetMapping("/refreshToken")
     public Result refreshToken(HttpSession session) {
         User user = getApiUser();

@@ -9,6 +9,8 @@ import co.yiiu.pybbs.service.ISystemConfigService;
 import co.yiiu.pybbs.service.ITopicService;
 import co.yiiu.pybbs.util.Result;
 import co.yiiu.pybbs.util.SensitiveWordUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,7 @@ import java.util.Map;
  * Copyright (c) 2018, All Rights Reserved.
  * https://atjiu.github.io
  */
+@Api(tags = "评论")
 @RestController
 @RequestMapping("/api/comment")
 public class CommentApiController extends BaseApiController {
@@ -33,6 +36,7 @@ public class CommentApiController extends BaseApiController {
     private ISystemConfigService systemConfigService;
 
     // 创建评论
+    @ApiOperation(value = "创建评论")
     @PostMapping
     public Result create(@RequestBody Map<String, String> body) {
         User user = getApiUser();
@@ -59,6 +63,7 @@ public class CommentApiController extends BaseApiController {
     }
 
     // 更新评论
+    @ApiOperation(value = "更新评论")
     // 更新操作不用判断用户是否激活过，如果没有激活的用户是没有办法评论的，所以更新操作不做帐号是否激活判断
     @PutMapping("/{id}")
     public Result update(@PathVariable Integer id, @RequestBody Map<String, String> body) {
@@ -77,6 +82,7 @@ public class CommentApiController extends BaseApiController {
     }
 
     // 删除评论
+    @ApiOperation(value = "删除评论")
     @DeleteMapping("/{id}")
     public Result delete(@PathVariable Integer id) {
         User user = getApiUser();
@@ -88,6 +94,7 @@ public class CommentApiController extends BaseApiController {
     }
 
     // 点赞评论
+    @ApiOperation(value = "点赞评论")
     @GetMapping("/{id}/vote")
     public Result vote(@PathVariable Integer id) {
         User user = getApiUser();

@@ -3,6 +3,8 @@ package co.yiiu.pybbs.controller.api;
 import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.service.INotificationService;
 import co.yiiu.pybbs.util.Result;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +19,7 @@ import java.util.Map;
  * Copyright (c) 2018, All Rights Reserved.
  * https://atjiu.github.io
  */
+@Api(tags = "通知")
 @RestController
 @RequestMapping("/api/notification")
 public class NotificationApiController extends BaseApiController {
@@ -24,12 +27,14 @@ public class NotificationApiController extends BaseApiController {
     @Resource
     private INotificationService notificationService;
 
+    @ApiOperation(value = "未读消息数")
     @GetMapping("/notRead")
     public Result notRead() {
         User user = getApiUser();
         return success(notificationService.countNotRead(user.getId()));
     }
 
+    @ApiOperation(value = "标记已读")
     @GetMapping("/markRead")
     public Result markRead() {
         User user = getApiUser();
@@ -38,6 +43,7 @@ public class NotificationApiController extends BaseApiController {
     }
 
     // 通知列表
+    @ApiOperation(value = "通知列表")
     @GetMapping("/list")
     public Result list() {
         User user = getApiUser();

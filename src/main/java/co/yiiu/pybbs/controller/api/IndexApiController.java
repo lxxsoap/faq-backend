@@ -7,6 +7,8 @@ import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.*;
 import co.yiiu.pybbs.util.bcrypt.BCryptPasswordEncoder;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +22,7 @@ import java.util.*;
  * Copyright (c) 2018, All Rights Reserved.
  * https://atjiu.github.io
  */
+@Api(tags = "首页")
 @RestController
 @RequestMapping("/api")
 public class IndexApiController extends BaseApiController {
@@ -40,6 +43,7 @@ public class IndexApiController extends BaseApiController {
     private ICodeService codeService;
 
     // 首页接口
+    @ApiOperation(value = "首页接口")
     @GetMapping({"/", "/index"})
     public Result index(@RequestParam(defaultValue = "1") Integer pageNo, @RequestParam(defaultValue = "all") String
             tab) {
@@ -53,6 +57,7 @@ public class IndexApiController extends BaseApiController {
     }
 
     // 根据标签名返回标签下话题
+    @ApiOperation(value = "根据标签名返回标签下话题")
     @GetMapping("/tag/{name}")
     public Result topicsByTagName(@RequestParam(defaultValue = "1") Integer pageNo, @PathVariable String name) {
         Tag tag = tagService.selectByName(name);
@@ -68,6 +73,7 @@ public class IndexApiController extends BaseApiController {
     }
 
     // 处理登录的接口
+    @ApiOperation(value = "登录")
     @PostMapping("/login")
     public Result login(@RequestBody Map<String, String> body, HttpSession session) {
         String username = body.get("username");
@@ -85,6 +91,7 @@ public class IndexApiController extends BaseApiController {
     }
 
     // 处理注册的接口
+    @ApiOperation(value = "注册")
     @PostMapping("/register")
     public Result register(@RequestBody Map<String, String> body, HttpSession session) {
         String username = body.get("username");
@@ -108,6 +115,7 @@ public class IndexApiController extends BaseApiController {
     }
 
     // 发送手机验证码
+    @ApiOperation(value = "发送手机验证码")
     @GetMapping("/sms_code")
     public Result sms_code(String captcha, String mobile, HttpSession session) {
         String _captcha = (String) session.getAttribute("_captcha");
@@ -124,6 +132,7 @@ public class IndexApiController extends BaseApiController {
     }
 
     // 手机号+验证码登录
+    @ApiOperation(value = "手机号+验证码登录")
     @PostMapping("/mobile_login")
     public Result mobile_login(@RequestBody Map<String, String> body, HttpSession session) {
         String mobile = body.get("mobile");
@@ -171,12 +180,14 @@ public class IndexApiController extends BaseApiController {
     }
 
     // 标签接口
+    @ApiOperation(value = "标签接口")
     @GetMapping("/tags")
     public Result tags(@RequestParam(defaultValue = "1") Integer pageNo) {
         return success(tagService.selectAll(pageNo, null, null));
     }
 
     // 上传图片
+    @ApiOperation(value = "上传图片")
     @PostMapping("/upload")
     @ResponseBody
     public Result upload(@RequestParam("file") MultipartFile[] files, String type, HttpSession session) {
