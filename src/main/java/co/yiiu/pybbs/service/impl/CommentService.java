@@ -58,10 +58,16 @@ public class CommentService implements ICommentService {
     @Override
     public List<CommentsByTopic> selectByTopicId(Integer topicId) {
         List<CommentsByTopic> commentsByTopics = commentMapper.selectByTopicId(topicId);
-        // 对评论内容进行过滤，然后再写入redis
+
         for (CommentsByTopic commentsByTopic : commentsByTopics) {
+            // 将点赞用户id的字符串转成集合
+            String upIds = commentsByTopic.getUpIds();
+            Set<String> strings = StringUtils.commaDelimitedListToSet(upIds);
+            commentsByTopic.setLikeCount(strings.size());
+            // 对评论内容进行过滤，然后再写入redis
             commentsByTopic.setContent(SensitiveWordUtil.replaceSensitiveWord(commentsByTopic.getContent(), "*",
                     SensitiveWordUtil.MinMatchType));
+
         }
         return commentsByTopics;
     }

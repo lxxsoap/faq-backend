@@ -19,6 +19,16 @@ public class CommentsByTopic extends Comment implements Serializable {
     private String avatar;
     // 评论的层级，直接评论话题的，layer即为0，如果回复了评论的，则当前回复的layer为评论对象的layer+1
     private Integer layer;
+    // 评论的点赞数
+    private  Integer likeCount;
+
+
+    public Integer getLikeCount() {
+        return likeCount;
+    }
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
 
     private LinkedHashMap<Integer, List<CommentsByTopic>> children;
 
