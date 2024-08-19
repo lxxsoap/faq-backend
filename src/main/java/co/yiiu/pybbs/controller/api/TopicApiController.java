@@ -6,6 +6,7 @@ import co.yiiu.pybbs.model.Tag;
 import co.yiiu.pybbs.model.Topic;
 import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.model.vo.CommentsByTopic;
+import co.yiiu.pybbs.model.vo.QuestionDetailVO;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.IpUtil;
 import co.yiiu.pybbs.util.MyPage;
@@ -80,12 +81,37 @@ public class TopicApiController extends BaseApiController {
         topic = topicService.updateViewCount(topic, ip);
         topic.setContent(SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
 
-        map.put("topic", topic);
-        map.put("tags", tags);
-        map.put("comments", comments);
-        map.put("topicUser", topicUser);
-        map.put("collects", collects);
-        return success(map);
+        /**
+         * faq-backend返回参数
+         */
+        QuestionDetailVO questionDetailVO = new QuestionDetailVO();
+        //topic转换成questionDetailVO
+        questionDetailVO.setUserName(topicUser.getUsername());
+        questionDetailVO.setId(topic.getId());
+        questionDetailVO.setTitle(topic.getTitle());
+        questionDetailVO.setContent(topic.getContent());
+        questionDetailVO.setCommentCount(topic.getCommentCount());
+        questionDetailVO.setCollectCount(topic.getCollectCount());
+        questionDetailVO.setInTime(topic.getInTime());
+        questionDetailVO.setModifyTime(topic.getModifyTime());
+        questionDetailVO.setUserId(topic.getUserId());
+        questionDetailVO.setTop(topic.getTop());
+        questionDetailVO.setGood(topic.getGood());
+        questionDetailVO.setTags(tags);
+        questionDetailVO.setComments(comments);
+        questionDetailVO.setTopicUser(topicUser);
+        questionDetailVO.setCollects(collects);
+        return success(questionDetailVO);
+        /**
+         * 原版pybbs返回参数
+         */
+//        map.put("topic", topic);
+//        map.put("tags", tags);
+//        map.put("comments", comments);
+//        map.put("topicUser", topicUser);
+//        map.put("collects", collects);
+//        return success(map);
+
     }
 
     // 保存话题
