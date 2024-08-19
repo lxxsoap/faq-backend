@@ -8,7 +8,7 @@ import co.yiiu.pybbs.model.User;
 import java.util.List;
 
 /**
- * <p>@description TODO </p >
+ * <p>@description 问题详情VO </p >
  *
  * @author <a href=" ">Shaw</a >
  * @version v1.1.0
