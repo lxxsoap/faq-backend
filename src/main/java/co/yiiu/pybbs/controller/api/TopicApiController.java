@@ -103,7 +103,7 @@ public class TopicApiController extends BaseApiController {
         questionDetailVO.setCollects(collects);
         return success(questionDetailVO);
         /**
-         * 原版pybbs返回参数
+         * 原版pybbs返回参数 test
          */
 //        map.put("topic", topic);
 //        map.put("tags", tags);
