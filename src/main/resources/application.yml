@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   profiles:
-    active: dev
+    active: @profiles.active@
   banner:
     location: ["classpath:banner.txt", "file:./banner.txt"]
   freemarker:
