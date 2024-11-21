@@ -90,6 +90,22 @@ public class IndexApiController extends BaseApiController {
         return this.doUserStorage(session, user);
     }
 
+
+    @ApiOperation(value = "退出登录")
+    @GetMapping("/logout")
+    public Result logout(HttpSession session) {
+        User user = getUser();
+        if (user != null) {
+            // 清除redis里的缓存
+            userService.delRedisUser(user);
+            // 清除session里的用户信息
+            session.removeAttribute("_user");
+            // 清除cookie里的用户token
+            cookieUtil.clearCookie(systemConfigService.selectAllConfig().get("cookie_name").toString());
+        }
+        return success();
+    }
+
     // 处理注册的接口
     @ApiOperation(value = "注册")
     @PostMapping("/register")
