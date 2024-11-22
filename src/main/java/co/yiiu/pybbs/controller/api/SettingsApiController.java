@@ -3,6 +3,9 @@ package co.yiiu.pybbs.controller.api;
 import co.yiiu.pybbs.exception.ApiAssert;
 import co.yiiu.pybbs.model.Code;
 import co.yiiu.pybbs.model.User;
+import co.yiiu.pybbs.model.dto.UpdateEmailRequestDTO;
+import co.yiiu.pybbs.model.dto.UpdatePasswordRequestDTO;
+import co.yiiu.pybbs.model.dto.UpdateProfileRequestDTO;
 import co.yiiu.pybbs.service.ICodeService;
 import co.yiiu.pybbs.service.ISystemConfigService;
 import co.yiiu.pybbs.service.IUserService;
@@ -38,23 +41,20 @@ public class SettingsApiController extends BaseApiController {
     // 更新用户个人信息
     @ApiOperation(value = "更新用户个人信息")
     @PutMapping
-    public Result update(@RequestBody Map<String, String> body, HttpSession session) {
+    public Result update(@RequestBody UpdateProfileRequestDTO dto, HttpSession session) {
         User user = getApiUser();
-        String telegramName = body.get("telegramName");
-        String website = body.get("website");
-        String bio = body.get("bio");
-        Boolean emailNotification = Boolean.parseBoolean(body.get("emailNotification"));
+    
         // 查询当前用户的最新信息
         User user1 = userService.selectById(user.getId());
-        user1.setTelegramName(telegramName);
-        user1.setWebsite(website);
-        user1.setBio(bio);
-        user1.setEmailNotification(emailNotification);
+        user1.setTelegramName(dto.getTelegramName());
+        user1.setWebsite(dto.getWebsite());
+        user1.setBio(dto.getBio());
+        user1.setEmailNotification(dto.getEmailNotification());
         userService.update(user1);
 
         User user2 = getUser();
         if (user2 != null) {
-            user2.setBio(bio);
+            user2.setBio(dto.getBio());
             session.setAttribute("_user", user2);
         }
         return success();
@@ -103,10 +103,10 @@ public class SettingsApiController extends BaseApiController {
     // 更新用户邮箱
     @ApiOperation(value = "更新用户邮箱")
     @PutMapping("/updateEmail")
-    public Result updateEmail(@RequestBody Map<String, String> body, HttpSession session) {
+    public Result updateEmail(@RequestBody UpdateEmailRequestDTO dto, HttpSession session) {
         User user = getApiUser();
-        String email = body.get("email");
-        String code = body.get("code");
+        String email = dto.getEmail();
+        String code = dto.getCode();
         ApiAssert.notEmpty(email, "请输入邮箱 ");
         ApiAssert.isTrue(StringUtil.check(email, StringUtil.EMAILREGEX), "邮箱格式不正确");
         Code code1 = codeService.validateCode(user.getId(), email, null, code);
@@ -130,12 +130,12 @@ public class SettingsApiController extends BaseApiController {
     // 修改密码
     @ApiOperation(value = "修改密码")
     @PutMapping("/updatePassword")
-    public Result updatePassword(@RequestBody Map<String, String> body) {
+    public Result updatePassword(@RequestBody UpdatePasswordRequestDTO dto) {
         User user = getApiUser();
         user = userService.selectByIdWithoutCache(user.getId());
 
-        String oldPassword = body.get("oldPassword");
-        String newPassword = body.get("newPassword");
+        String oldPassword = dto.getOldPassword();
+        String newPassword = dto.getNewPassword();
 
         ApiAssert.notEmpty(oldPassword, "请输入旧密码");
         ApiAssert.notEmpty(newPassword, "请输入新密码");

@@ -5,6 +5,8 @@ import co.yiiu.pybbs.model.Collect;
 import co.yiiu.pybbs.model.Tag;
 import co.yiiu.pybbs.model.Topic;
 import co.yiiu.pybbs.model.User;
+import co.yiiu.pybbs.model.dto.TopicCreateRequestDTO;
+import co.yiiu.pybbs.model.dto.TopicUpdateRequestDTO;
 import co.yiiu.pybbs.model.vo.CommentsByTopic;
 import co.yiiu.pybbs.model.vo.QuestionDetailVO;
 import co.yiiu.pybbs.service.*;
@@ -117,12 +119,12 @@ public class TopicApiController extends BaseApiController {
     // 保存话题
     @ApiOperation(value = "创建问题")
     @PostMapping
-    public Result create(@RequestBody Map<String, String> body) {
+    public Result create(@RequestBody TopicCreateRequestDTO dto) {
         User user = getApiUser();
         ApiAssert.isTrue(user.getActive(), "你的帐号还没有激活，请去个人设置页面激活帐号");
-        String title = body.get("title");
-        String content = body.get("content");
-        String tag = body.get("tag");
+        String title = dto.getTitle();
+        String content = dto.getContent();
+       // String tag = dto.get("tag");
         //    String tags = body.get("tags");
         title = Jsoup.clean(title, Whitelist.basic());
         ApiAssert.notEmpty(title, "请输入标题");
@@ -130,10 +132,10 @@ public class TopicApiController extends BaseApiController {
         //    String[] strings = StringUtils.commaDelimitedListToStringArray(tags);
         //    Set<String> set = StringUtil.removeEmpty(strings);
         //    ApiAssert.notTrue(set.isEmpty() || set.size() > 5, "请输入标签且标签最多5个");
-        // 保存话题
+        // 保存话题 TODO:tag标签关联实现
         // 再次将tag转成逗号隔开的字符串
         //    tags = StringUtils.collectionToCommaDelimitedString(set);
-        Topic topic = topicService.insert(title, content, tag, user);
+        Topic topic = topicService.insert(title, content, new String(), user);
         topic.setContent(SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
         return success(topic);
     }
@@ -141,13 +143,13 @@ public class TopicApiController extends BaseApiController {
     // 更新话题
     @ApiOperation(value = "更新问题")
     @PutMapping(value = "/{id}")
-    public Result edit(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+    public Result edit( @RequestBody TopicUpdateRequestDTO dto) {
         User user = getApiUser();
-        String title = body.get("title");
-        String content = body.get("content");
+        String title = dto.getTitle();
+        String content = dto.getContent();
         ApiAssert.notEmpty(title, "请输入标题");
         // 更新话题
-        Topic topic = topicService.selectById(id);
+        Topic topic = topicService.selectById(dto.getId());
         ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "谁给你的权限修改别人的话题的？");
         topic.setTitle(Jsoup.clean(title, Whitelist.none().addTags("video")));
         topic.setContent(content);

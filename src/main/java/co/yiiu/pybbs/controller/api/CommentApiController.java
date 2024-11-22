@@ -4,6 +4,8 @@ import co.yiiu.pybbs.exception.ApiAssert;
 import co.yiiu.pybbs.model.Comment;
 import co.yiiu.pybbs.model.Topic;
 import co.yiiu.pybbs.model.User;
+import co.yiiu.pybbs.model.dto.CommentCreateRequestDTO;
+import co.yiiu.pybbs.model.dto.CommentUpdateRequestDTO;
 import co.yiiu.pybbs.service.ICommentService;
 import co.yiiu.pybbs.service.ISystemConfigService;
 import co.yiiu.pybbs.service.ITopicService;
@@ -38,16 +40,18 @@ public class CommentApiController extends BaseApiController {
     // 创建评论
     @ApiOperation(value = "创建评论")
     @PostMapping
-    public Result create(@RequestBody Map<String, String> body) {
+    public Result create(@RequestBody CommentCreateRequestDTO dto) {
         User user = getApiUser();
         ApiAssert.isTrue(user.getActive(), "你的帐号还没有激活，请去个人设置页面激活帐号");
-        String content = body.get("content");
-        Integer topicId = StringUtils.isEmpty(body.get("topicId")) ? null : Integer.parseInt(body.get("topicId"));
-        Integer commentId = StringUtils.isEmpty(body.get("commentId")) ? null : Integer.parseInt(body.get("commentId"));
+        String content = dto.getContent();
+        Integer topicId = dto.getTopicId();
+        Integer commentId = dto.getCommentId();
+    
         ApiAssert.notEmpty(content, "请输入评论内容");
         ApiAssert.notNull(topicId, "话题ID呢？");
         Topic topic = topicService.selectById(topicId);
         ApiAssert.notNull(topic, "你晚了一步，话题可能已经被删除了");
+    
         // 组装comment对象
         Comment comment = new Comment();
         comment.setCommentId(commentId);
@@ -66,9 +70,9 @@ public class CommentApiController extends BaseApiController {
     @ApiOperation(value = "更新评论")
     // 更新操作不用判断用户是否激活过，如果没有激活的用户是没有办法评论的，所以更新操作不做帐号是否激活判断
     @PutMapping("/{id}")
-    public Result update(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+    public Result update(@PathVariable Integer id, @RequestBody CommentUpdateRequestDTO dto) {
         User user = getApiUser();
-        String content = body.get("content");
+        String content = dto.getContent();
         ApiAssert.notNull(id, "评论ID呢？");
         ApiAssert.notEmpty(content, "请输入评论内容");
         Comment comment = commentService.selectById(id);

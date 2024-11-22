@@ -4,6 +4,9 @@ import co.yiiu.pybbs.exception.ApiAssert;
 import co.yiiu.pybbs.model.Code;
 import co.yiiu.pybbs.model.Tag;
 import co.yiiu.pybbs.model.User;
+import co.yiiu.pybbs.model.dto.LoginRequestDTO;
+import co.yiiu.pybbs.model.dto.MobileLoginRequestDTO;
+import co.yiiu.pybbs.model.dto.RegisterRequestDTO;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.*;
 import co.yiiu.pybbs.util.bcrypt.BCryptPasswordEncoder;
@@ -75,9 +78,9 @@ public class IndexApiController extends BaseApiController {
     // 处理登录的接口
     @ApiOperation(value = "登录")
     @PostMapping("/login")
-    public Result login(@RequestBody Map<String, String> body, HttpSession session) {
-        String username = body.get("username");
-        String password = body.get("password");
+    public Result login(@RequestBody LoginRequestDTO dto, HttpSession session) {
+        String username = dto.getUsername();
+    String password = dto.getPassword();
 //        String captcha = body.get("captcha");
 //        String _captcha = (String) session.getAttribute("_captcha");
 //        ApiAssert.notTrue(_captcha == null || StringUtils.isEmpty(captcha), "请输入验证码");
@@ -109,10 +112,10 @@ public class IndexApiController extends BaseApiController {
     // 处理注册的接口
     @ApiOperation(value = "注册")
     @PostMapping("/register")
-    public Result register(@RequestBody Map<String, String> body, HttpSession session) {
-        String username = body.get("username");
-        String password = body.get("password");
-        String email = body.get("email");
+    public Result register(@RequestBody RegisterRequestDTO  dto, HttpSession session) {
+        String username = dto.getUsername();
+        String password = dto.getEmail();
+        String email = dto.getEmail();
 //        String captcha = body.get("captcha");
 //        String _captcha = (String) session.getAttribute("_captcha");
 //        ApiAssert.notTrue(_captcha == null || StringUtils.isEmpty(captcha), "请输入验证码");
@@ -133,10 +136,8 @@ public class IndexApiController extends BaseApiController {
     // 发送手机验证码
     @ApiOperation(value = "发送手机验证码")
     @GetMapping("/sms_code")
-    public Result sms_code(String captcha, String mobile, HttpSession session) {
-//        String _captcha = (String) session.getAttribute("_captcha");
-//        ApiAssert.notTrue(_captcha == null || StringUtils.isEmpty(captcha), "请输入验证码");
-//        ApiAssert.notTrue(!_captcha.equalsIgnoreCase(captcha), "验证码不正确");
+    public Result sms_code(@RequestParam("mobile") String mobile, HttpSession session) {
+
         ApiAssert.notEmpty(mobile, "请输入手机号");
         ApiAssert.isTrue(StringUtil.check(mobile, StringUtil.MOBILEREGEX), "请输入正确的手机号");
         boolean b = codeService.sendSms(mobile);
@@ -150,13 +151,9 @@ public class IndexApiController extends BaseApiController {
     // 手机号+验证码登录
     @ApiOperation(value = "手机号+验证码登录")
     @PostMapping("/mobile_login")
-    public Result mobile_login(@RequestBody Map<String, String> body, HttpSession session) {
-        String mobile = body.get("mobile");
-        String code = body.get("code");
-//        String captcha = body.get("captcha");
-//        String _captcha = (String) session.getAttribute("_captcha");
-//        ApiAssert.notTrue(_captcha == null || StringUtils.isEmpty(captcha), "请输入验证码");
-//        ApiAssert.notTrue(!_captcha.equalsIgnoreCase(captcha), "验证码不正确");
+    public Result mobile_login(@RequestBody MobileLoginRequestDTO dto, HttpSession session) {
+        String mobile = dto.getMobile();
+        String code = dto.getCode();
         ApiAssert.notEmpty(mobile, "请输入手机号");
         ApiAssert.isTrue(StringUtil.check(mobile, StringUtil.MOBILEREGEX), "请输入正确的手机号");
         ApiAssert.notEmpty(code, "请输入手机验证码");
@@ -166,19 +163,6 @@ public class IndexApiController extends BaseApiController {
         return doUserStorage(session, user);
     }
 
-    // 忘记密码要通过发送邮件来重置密码
-    // 让我再想想怎么实现这个功能比较好
-    // @PostMapping("/forget_password")
-    //  public Result forget_password(@RequestBody Map<String, String> body, HttpSession session) {
-    //    String email = body.get("email");
-    //    String captcha = body.get("captcha");
-    //    String _captcha = (String) session.getAttribute("_captcha");
-    //    ApiAssert.notTrue(_captcha == null || StringUtils.isEmpty(captcha), "请输入验证码");
-    //    ApiAssert.notTrue(!_captcha.equalsIgnoreCase(captcha), "验证码不正确");
-    //    ApiAssert.notEmpty(email, "请输入邮箱");
-    //    ApiAssert.isTrue(StringUtil.check(email, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");
-    //    emailService.send
-    //  }
 
     // 登录成功后，处理的逻辑一样，这里提取出来封装一个方法处理
     private Result doUserStorage(HttpSession session, User user) {
