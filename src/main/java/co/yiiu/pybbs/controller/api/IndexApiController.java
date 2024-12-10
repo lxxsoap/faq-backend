@@ -147,7 +147,6 @@ public class IndexApiController extends BaseApiController {
             return success();
         }
     }
-
     // 手机号+验证码登录
     @ApiOperation(value = "手机号+验证码登录")
     @PostMapping("/mobile_login")

@@ -4,6 +4,8 @@ public class TopicCreateRequestDTO {
     private String title;
     private String content;
 
+    private String tags;
+
     // Getter 和 Setter 方法
     public String getTitle() {
         return title;
@@ -19,5 +21,13 @@ public class TopicCreateRequestDTO {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }
