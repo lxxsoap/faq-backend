@@ -50,6 +50,8 @@ public class SettingsApiController extends BaseApiController {
         user1.setWebsite(dto.getWebsite());
         user1.setBio(dto.getBio());
         user1.setEmailNotification(dto.getEmailNotification());
+        user1.setCareer(dto.getCareer());
+        user1.setTags(dto.getTags());
         userService.update(user1);
 
         User user2 = getUser();

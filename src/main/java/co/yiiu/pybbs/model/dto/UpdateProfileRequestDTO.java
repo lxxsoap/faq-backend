@@ -5,6 +5,8 @@ public class UpdateProfileRequestDTO {
     private String website;
     private String bio;
     private Boolean emailNotification;
+    private String career;
+    private String tags;
 
     // Getter 和 Setter 方法
     public String getTelegramName() {
@@ -19,6 +21,12 @@ public class UpdateProfileRequestDTO {
     public Boolean getEmailNotification() {
         return emailNotification;
     }
+    public String getCareer() {
+        return career;
+    }
+    public String getTags() {
+        return tags;
+    }
     public void setTelegramName(String telegramName) {
         this.telegramName = telegramName;
     }
@@ -31,5 +39,10 @@ public class UpdateProfileRequestDTO {
     public void setEmailNotification(Boolean emailNotification) {
         this.emailNotification = emailNotification;
     }
-    
+    public void setCareer(String career) {
+        this.career = career;
+    }
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
 }

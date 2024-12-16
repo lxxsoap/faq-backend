@@ -37,6 +37,10 @@ public class User implements Serializable {
     private Boolean emailNotification;
     // 帐号是否激活
     private Boolean active;
+    // 职业
+    private String career;
+    // 兴趣标签
+    private String tags;
 
     // 有消息通知是否通过telegram收取
     // 文档上写的可以通过username跟userId发送消息，但测试结果是只能通过userId发送
@@ -155,11 +159,27 @@ public class User implements Serializable {
         this.mobile = mobile;
     }
 
+    public String getCareer() {
+        return career;
+    }
+
+    public void setCareer(String career) {
+        this.career = career;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     @Override
     public String toString() {
         return "User{" + "id=" + id + ", username='" + username + '\'' + ", telegramName='" + telegramName + '\'' + ", "
                 + "avatar='" + avatar + '\'' + ", password='" + password + '\'' + ", email='" + email + '\'' + ", mobile='" +
                 mobile + '\'' + ", website='" + website + '\'' + ", bio='" + bio + '\'' + ", score=" + score + ", inTime=" +
-                inTime + ", token='" + token + '\'' + ", emailNotification=" + emailNotification + ", active=" + active + '}';
+                inTime + ", token='" + token + '\'' + ", emailNotification=" + emailNotification + ", active=" + active + ", career='" + career + '\'' + ", tags='" + tags + '\'' + '}';
     }
 }
