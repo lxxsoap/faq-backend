@@ -1,4 +1,4 @@
-INSERT INTO `tag` (id, name, description, icon, topic_count, in_time) 
+INSERT IGNORE INTO `tag` (id, name, description, icon, topic_count, in_time) 
 VALUES (1, '问题行为', '问题行为', null, 0, '2024-12-07 15:57:36'),
        (2, '刻板行为/思维', '刻板行为/思维', null, 0, '2024-12-07 15:57:58'),
        (3, '自我刺激', '自我刺激', null, 0, '2024-12-07 15:58:11'),
