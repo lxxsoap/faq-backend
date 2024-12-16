@@ -46,7 +46,25 @@ public class TopicApiController extends BaseApiController {
     //查看所有话题
     @ApiOperation(value = "问题列表")
     @GetMapping("/list")
-    public Result list(@RequestParam(value = "page", defaultValue = "1") Integer pageNo, @RequestParam(value = "tab", defaultValue = "all") String tab) {
+    public Result list(
+        @RequestParam(value = "page", defaultValue = "1") Integer pageNo, 
+        @RequestParam(value = "tab", defaultValue = "all") String tab,
+        @RequestParam(value = "tag", required = false) String tagName) {
+        
+        // 如果传入了tag参数，则按标签查询
+        if (!StringUtils.isEmpty(tagName)) {
+            Tag tag = tagService.selectByName(tagName);
+            if (tag == null) {
+                return error("标签不存在");
+            }
+            MyPage<Map<String, Object>> iPage = tagService.selectTopicByTagId(tag.getId(), pageNo);
+            Map<String, Object> result = new HashMap<>();
+            result.put("tag", tag);
+            result.put("page", iPage);
+            return success(result);
+        }
+        
+        // 没有tag参数时走原有逻辑
         MyPage<Map<String, Object>> page = topicService.selectAll(pageNo, tab);
         return success(page);
     }
@@ -125,7 +143,7 @@ public class TopicApiController extends BaseApiController {
         ApiAssert.isNull(topicService.selectByTitle(title), "话题标题重复");
             String[] strings = StringUtils.commaDelimitedListToStringArray(tags);
             Set<String> set = StringUtil.removeEmpty(strings);
-        //    ApiAssert.notTrue(set.isEmpty() || set.size() > 5, "请输入标签且标签最多5个");
+            ApiAssert.notTrue(set.isEmpty() || set.size() > 3, "请输入标签且标签最多3个");
         // 保存话题 TODO:tag标签关联实现
         // 再次将tag转成逗号隔开的字符串
             tags = StringUtils.collectionToCommaDelimitedString(set);
