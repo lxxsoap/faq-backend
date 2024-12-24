@@ -52,4 +52,6 @@ public interface ITopicService {
     int countToday();
 
     int vote(Topic topic, User user);
+
+    MyPage<Map<String, Object>> selectByTitle(String title, Integer pageNo, String tab);
 }

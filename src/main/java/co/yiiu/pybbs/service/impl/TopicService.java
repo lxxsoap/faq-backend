@@ -79,7 +79,8 @@ public class TopicService implements ITopicService {
         if (topicId != null) {
             wrapper.lambda().ne(Topic::getId, topicId);
         }
-        if (limit != null) wrapper.last("limit " + limit);
+        if (limit != null)
+            wrapper.last("limit " + limit);
         return topicMapper.selectList(wrapper);
     }
 
@@ -91,8 +92,9 @@ public class TopicService implements ITopicService {
         MyPage<Map<String, Object>> page = topicMapper.selectByUserId(iPage, userId);
         for (Map<String, Object> map : page.getRecords()) {
             Object content = map.get("content");
-            map.put("content", StringUtils.isEmpty(content) ? null : SensitiveWordUtil.replaceSensitiveWord(content
-                    .toString(), "*", SensitiveWordUtil.MinMatchType));
+            map.put("content", StringUtils.isEmpty(content) ? null
+                    : SensitiveWordUtil.replaceSensitiveWord(content
+                            .toString(), "*", SensitiveWordUtil.MinMatchType));
         }
         return page;
     }
@@ -113,7 +115,8 @@ public class TopicService implements ITopicService {
         topic.setCommentCount(0);
         topicMapper.insert(topic);
         // 增加用户积分
-        user.setScore(user.getScore() + Integer.parseInt(systemConfigService.selectAllConfig().get("create_topic_score").toString()));
+        user.setScore(user.getScore()
+                + Integer.parseInt(systemConfigService.selectAllConfig().get("create_topic_score").toString()));
         userService.update(user);
         if (!StringUtils.isEmpty(tags)) {
             // 保存标签
@@ -211,15 +214,15 @@ public class TopicService implements ITopicService {
             // 删除话题关联的标签中间表数据
             topicTagService.deleteByTopicId(topic.getId());
         });
-        //删除话题
+        // 删除话题
         topicMapper.delete(wrapper);
     }
 
     // ---------------------------- admin ----------------------------
 
     @Override
-    public MyPage<Map<String, Object>> selectAllForAdmin(Integer pageNo, String startDate, String endDate, String
-            username) {
+    public MyPage<Map<String, Object>> selectAllForAdmin(Integer pageNo, String startDate, String endDate,
+            String username) {
         MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo, Integer.parseInt((String) systemConfigService
                 .selectAllConfig().get("page_size")));
         return topicMapper.selectAllForAdmin(iPage, startDate, endDate, username);
@@ -255,6 +258,27 @@ public class TopicService implements ITopicService {
         user.setScore(userScore);
         userService.update(user);
         return strings.size();
+    }
+
+    @Override
+    public MyPage<Map<String, Object>> selectByTitle(String title, Integer pageNo, String tab) {
+        MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo,
+                Integer.parseInt((String) systemConfigService.selectAllConfig().get("page_size")));
+
+        // 构建查询条件
+        QueryWrapper<Topic> wrapper = new QueryWrapper<>();
+        wrapper.like("title", title); // 标题模糊查询
+
+        // 如果tab不是all，添加tab条件
+        if (!"all".equals(tab)) {
+            wrapper.eq("tab", tab);
+        }
+
+        // 按创建时间倒序排序
+        wrapper.orderByDesc("in_time");
+
+        // 执行查询
+        return topicMapper.selectAll(iPage, wrapper);
     }
 
 }

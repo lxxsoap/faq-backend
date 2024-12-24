@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by tomoya.
@@ -43,29 +44,49 @@ public class TopicApiController extends BaseApiController {
     @Resource
     private ICollectService collectService;
 
-    //查看所有话题
+    // 查看所有话题
     @ApiOperation(value = "问题列表")
     @GetMapping("/list")
     public Result list(
-        @RequestParam(value = "page", defaultValue = "1") Integer pageNo, 
-        @RequestParam(value = "tab", defaultValue = "all") String tab,
-        @RequestParam(value = "tag", required = false) String tagName) {
-        
-        // 如果传入了tag参数，则按标签查询
+            @RequestParam(value = "page", defaultValue = "1") Integer pageNo,
+            @RequestParam(value = "tab", defaultValue = "all") String tab,
+            @RequestParam(value = "tag", required = false) String tagName,
+            @RequestParam(value = "title", required = false) String title) {
+
+        MyPage<Map<String, Object>> page;
+
+        // 1. 标签查询
         if (!StringUtils.isEmpty(tagName)) {
             Tag tag = tagService.selectByName(tagName);
             if (tag == null) {
                 return error("标签不存在");
             }
-            MyPage<Map<String, Object>> iPage = tagService.selectTopicByTagId(tag.getId(), pageNo);
-            Map<String, Object> result = new HashMap<>();
-            result.put("tag", tag);
-            result.put("page", iPage);
-            return success(result);
+            page = tagService.selectTopicByTagId(tag.getId(), pageNo);
+            // 查询每个话题的所有标签
+            tagService.selectTagsByTopicId(page);
+
+            // 如果同时有标题搜索，在标签结果中过滤
+            if (!StringUtils.isEmpty(title)) {
+                List<Map<String, Object>> filteredRecords = page.getRecords().stream()
+                        .filter(topic -> ((String) topic.get("title")).toLowerCase()
+                                .contains(title.toLowerCase()))
+                        .collect(Collectors.toList());
+                page.setRecords(filteredRecords);
+            }
         }
-        
-        // 没有tag参数时走原有逻辑
-        MyPage<Map<String, Object>> page = topicService.selectAll(pageNo, tab);
+        // 2. 仅标题搜索
+        else if (!StringUtils.isEmpty(title)) {
+            page = topicService.selectByTitle(title, pageNo, tab);
+            // 查询每个话题的所有标签
+            tagService.selectTagsByTopicId(page);
+        }
+        // 3. 无条件查询
+        else {
+            page = topicService.selectAll(pageNo, tab);
+            // 查询每个话题的所有标签
+            tagService.selectTagsByTopicId(page);
+        }
+
         return success(page);
     }
 
@@ -94,13 +115,14 @@ public class TopicApiController extends BaseApiController {
         String ip = IpUtil.getIpAddr(request);
         ip = ip.replace(":", "_").replace(".", "_");
         topic = topicService.updateViewCount(topic, ip);
-        topic.setContent(SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
+        topic.setContent(
+                SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
 
         /**
          * faq-backend返回参数
          */
         QuestionDetailVO questionDetailVO = new QuestionDetailVO();
-        //topic转换成questionDetailVO
+        // topic转换成questionDetailVO
         questionDetailVO.setUserName(topicUser.getUsername());
         questionDetailVO.setId(topic.getId());
         questionDetailVO.setTitle(topic.getTitle());
@@ -120,12 +142,12 @@ public class TopicApiController extends BaseApiController {
         /**
          * 原版pybbs返回参数 test
          */
-//        map.put("topic", topic);
-//        map.put("tags", tags);
-//        map.put("comments", comments);
-//        map.put("topicUser", topicUser);
-//        map.put("collects", collects);
-//        return success(map);
+        // map.put("topic", topic);
+        // map.put("tags", tags);
+        // map.put("comments", comments);
+        // map.put("topicUser", topicUser);
+        // map.put("collects", collects);
+        // return success(map);
 
     }
 
@@ -137,25 +159,26 @@ public class TopicApiController extends BaseApiController {
         ApiAssert.isTrue(user.getActive(), "你的帐号还没有激活，请去个人设置页面激活帐号");
         String title = dto.getTitle();
         String content = dto.getContent();
-            String tags = dto.getTags();
+        String tags = dto.getTags();
         title = Jsoup.clean(title, Whitelist.basic());
         ApiAssert.notEmpty(title, "请输入标题");
         ApiAssert.isNull(topicService.selectByTitle(title), "话题标题重复");
-            String[] strings = StringUtils.commaDelimitedListToStringArray(tags);
-            Set<String> set = StringUtil.removeEmpty(strings);
-            ApiAssert.notTrue(set.isEmpty() || set.size() > 3, "请输入标签且标签最多3个");
+        String[] strings = StringUtils.commaDelimitedListToStringArray(tags);
+        Set<String> set = StringUtil.removeEmpty(strings);
+        ApiAssert.notTrue(set.isEmpty() || set.size() > 3, "请输入标签且标签最多3个");
         // 保存话题 TODO:tag标签关联实现
         // 再次将tag转成逗号隔开的字符串
-            tags = StringUtils.collectionToCommaDelimitedString(set);
+        tags = StringUtils.collectionToCommaDelimitedString(set);
         Topic topic = topicService.insert(title, content, tags, user);
-        topic.setContent(SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
+        topic.setContent(
+                SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
         return success(topic);
     }
 
     // 更新话题
     @ApiOperation(value = "更新问题")
     @PutMapping(value = "/{id}")
-    public Result edit( @RequestBody TopicUpdateRequestDTO dto) {
+    public Result edit(@RequestBody TopicUpdateRequestDTO dto) {
         User user = getApiUser();
         String title = dto.getTitle();
         String content = dto.getContent();
@@ -167,7 +190,8 @@ public class TopicApiController extends BaseApiController {
         topic.setContent(content);
         topic.setModifyTime(new Date());
         topicService.update(topic, null);
-        topic.setContent(SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
+        topic.setContent(
+                SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
         return success(topic);
     }
 
@@ -181,7 +205,6 @@ public class TopicApiController extends BaseApiController {
         topicService.delete(topic);
         return success();
     }
-
 
     @GetMapping("/{id}/vote")
     public Result vote(@PathVariable Integer id) {
