@@ -208,7 +208,7 @@ public class TopicService implements ITopicService {
             commentService.deleteByTopicId(topic.getId());
             // 删除被收藏的话题记录
             collectService.deleteByTopicId(topic.getId());
-            // 删除关联标签及标签统计数据
+            // 删除关联标签及标签统数据
             // 旧标签每个topicCount都-1
             tagService.reduceTopicCount(topic.getId());
             // 删除话题关联的标签中间表数据
@@ -241,7 +241,7 @@ public class TopicService implements ITopicService {
         String upIds = topic.getUpIds();
         // 将点赞用户id的字符串转成集合
         Set<String> strings = StringUtils.commaDelimitedListToSet(upIds);
-        // 把新的点赞用户id添加进集合，这里用set，正好可以去重，如果集合里已经有用户的id了，那么这次动作被视为取消点赞
+        // 把新的点赞用户id添加进集合，这里用set，正好可以去重，如果集合里已经有用户的id了���那么这次动作被视为取消点赞
         Integer userScore = user.getScore();
         if (strings.contains(String.valueOf(user.getId()))) { // 取消点赞行为
             strings.remove(String.valueOf(user.getId()));
@@ -265,20 +265,13 @@ public class TopicService implements ITopicService {
         MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo,
                 Integer.parseInt((String) systemConfigService.selectAllConfig().get("page_size")));
 
-        // 构建查询条件
-        QueryWrapper<Topic> wrapper = new QueryWrapper<>();
-        wrapper.like("title", title); // 标题模糊查询
+        // 直接使用 tab 参数调用现有的 selectAll 方法
+        MyPage<Map<String, Object>> page = topicMapper.selectAll(iPage, tab);
 
-        // 如果tab不是all，添加tab条件
-        if (!"all".equals(tab)) {
-            wrapper.eq("tab", tab);
-        }
+        // 在返回结果中过滤标题
+        page.getRecords().removeIf(map -> !map.get("title").toString().contains(title));
 
-        // 按创建时间倒序排序
-        wrapper.orderByDesc("in_time");
-
-        // 执行查询
-        return topicMapper.selectAll(iPage, wrapper);
+        return page;
     }
 
 }
