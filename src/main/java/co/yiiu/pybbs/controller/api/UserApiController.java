@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,24 +40,35 @@ public class UserApiController extends BaseApiController {
     @ApiOperation(value = "用户个人信息")
     @GetMapping("/{username}")
     public Result profile(@PathVariable String username) {
-        // 查询用户个人信息
-        User user = userService.selectByUsername(username);
-        // 查询oauth登录的用户信息
-        List<OAuthUser> oAuthUsers = oAuthUserService.selectByUserId(user.getId());
-        // 查询用户的话题
-        MyPage<Map<String, Object>> topics = topicService.selectByUserId(user.getId(), 1, 10);
-        // 查询用户参与的评论
-        MyPage<Map<String, Object>> comments = commentService.selectByUserId(user.getId(), 1, 10);
-        // 查询用户收藏的话题数
-        Integer collectCount = collectService.countByUserId(user.getId());
+        try {
+            // 解码接收到的用户名
+            username = java.net.URLDecoder.decode(username, "UTF-8");
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("user", user);
-        map.put("oAuthUsers", oAuthUsers);
-        map.put("topics", topics);
-        map.put("comments", comments);
-        map.put("collectCount", collectCount);
-        return success(map);
+            // 查询用户个人信息
+            User user = userService.selectByUsername(username);
+            if (user == null) {
+                return error("用户不存在");
+            }
+
+            // 查询oauth登录的用户信息
+            List<OAuthUser> oAuthUsers = oAuthUserService.selectByUserId(user.getId());
+            // 查询用户的话题
+            MyPage<Map<String, Object>> topics = topicService.selectByUserId(user.getId(), 1, 10);
+            // 查询用户参与的评论
+            MyPage<Map<String, Object>> comments = commentService.selectByUserId(user.getId(), 1, 10);
+            // 查询用户收藏的话题数
+            Integer collectCount = collectService.countByUserId(user.getId());
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("user", user);
+            map.put("oAuthUsers", oAuthUsers);
+            map.put("topics", topics);
+            map.put("comments", comments);
+            map.put("collectCount", collectCount);
+            return success(map);
+        } catch (UnsupportedEncodingException e) {
+            return error("用户名解析失败");
+        }
     }
 
     // 用户发布的话题
@@ -88,7 +100,7 @@ public class UserApiController extends BaseApiController {
     }
 
     // 用户收藏的话题
-    @ApiOperation(value = "用户收藏的问题")
+    @ApiOperation(value = "���户收藏的问题")
     @GetMapping("/{username}/collects")
     public Result collects(@PathVariable String username, @RequestParam(defaultValue = "1") Integer pageNo) {
         // 查询用户个人信息
