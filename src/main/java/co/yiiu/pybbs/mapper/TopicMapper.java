@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public interface TopicMapper extends BaseMapper<Topic> {
 
-    MyPage<Map<String, Object>> selectAll(MyPage<Map<String, Object>> iPage, @Param("tab") QueryWrapper<Topic> wrapper);
+    MyPage<Map<String, Object>> selectAll(MyPage<Map<String, Object>> iPage, @Param("tab") String tab);
 
     MyPage<Map<String, Object>> selectByTag(MyPage<Map<String, Object>> iPage, @Param("tag") String tag);
 
