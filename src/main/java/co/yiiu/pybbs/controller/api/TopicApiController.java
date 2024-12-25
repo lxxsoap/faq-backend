@@ -102,15 +102,18 @@ public class TopicApiController extends BaseApiController {
         // 查询话题关联的标签
         List<Tag> tags = tagService.selectByTopicId(id);
         // 查询话题的评论
-        List<CommentsByTopic> comments = commentService.selectByTopicIdAndLiked(id,getApiUser());
-        
-
+        User user = getApiUser(false);
+        List<CommentsByTopic> comments;
+        if (user != null) {
+            comments = commentService.selectByTopicIdAndLiked(id,user);
+        }else{
+            comments = commentService.selectByTopicId(id);
+        }
         // 查询话题的作者信息
         User topicUser = userService.selectById(topic.getUserId());
         // 查询话题有多少收藏
         List<Collect> collects = collectService.selectByTopicId(id);
         // 如果自己登录了，查询自己是否收藏过这个话题
-        User user = getApiUser(false);
         if (user != null) {
             Collect collect = collectService.selectByTopicIdAndUserId(id, user.getId());
             map.put("collect", collect);
