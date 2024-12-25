@@ -105,8 +105,8 @@ public class TopicApiController extends BaseApiController {
         User user = getApiUser(false);
         List<CommentsByTopic> comments;
         if (user != null) {
-            comments = commentService.selectByTopicIdAndLiked(id,user);
-        }else{
+            comments = commentService.selectByTopicIdAndLiked(id, user);
+        } else {
             comments = commentService.selectByTopicId(id);
         }
         // 查询话题的作者信息
@@ -118,7 +118,7 @@ public class TopicApiController extends BaseApiController {
             Collect collect = collectService.selectByTopicIdAndUserId(id, user.getId());
             if (collect != null) {
                 map.put("collected", true);
-            }else{
+            } else {
                 map.put("collected", false);
             }
         }
@@ -149,6 +149,7 @@ public class TopicApiController extends BaseApiController {
         questionDetailVO.setComments(comments);
         questionDetailVO.setTopicUser(topicUser);
         questionDetailVO.setCollects(collects);
+        questionDetailVO.setSolved(topic.getSolved());
         return success(questionDetailVO);
     }
 
@@ -167,7 +168,7 @@ public class TopicApiController extends BaseApiController {
         String[] strings = StringUtils.commaDelimitedListToStringArray(tags);
         Set<String> set = StringUtil.removeEmpty(strings);
         ApiAssert.notTrue(set.isEmpty() || set.size() > 3, "请输入标签且标签最多3个");
-        // 保存话题 
+        // 保存话题
         // 再次将tag转成逗号隔开的字符串
         tags = StringUtils.collectionToCommaDelimitedString(set);
         Topic topic = topicService.insert(title, content, tags, user);
@@ -225,7 +226,7 @@ public class TopicApiController extends BaseApiController {
         User user = getApiUser();
         Topic topic = topicService.selectById(id);
         ApiAssert.notNull(topic, "这个话题可能已经被删除了");
-        ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "给自己话题点赞，脸皮真厚！！");
+        ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "给自己话题点��，脸皮真厚！！");
         int voteCount = topicService.vote(topic, getApiUser());
         return success(voteCount);
     }
@@ -234,7 +235,7 @@ public class TopicApiController extends BaseApiController {
     @PutMapping("/solved")
     public Result updateSolved(@RequestBody TopicSolvedRequestDTO dto) {
         User user = getApiUser();
-        
+
         // 查询话题
         Topic topic = topicService.selectById(dto.getId());
         if (topic == null) {
@@ -244,14 +245,13 @@ public class TopicApiController extends BaseApiController {
         // 只有话题作者可以修改解决状态
         ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "只有话题作者才能修改解决状态");
 
-        // 更新解决状态
-        topic.setSolved(dto.getSolved());
-        topicService.update(topic, null);
+        // 使用专门的方法更新解决状态
+        topicService.updateSolvedStatus(dto.getId(), dto.getSolved());
 
-        // 查询话题关联的标签
+        // 重新查询最新数据
+        topic = topicService.selectById(dto.getId());
         List<Tag> tags = tagService.selectByTopicId(topic.getId());
 
-        // 构建返回的VO对象
         TopicDetailVO topicDetailVO = new TopicDetailVO();
         topicDetailVO.setTopic(topic);
         topicDetailVO.setTags(tags);

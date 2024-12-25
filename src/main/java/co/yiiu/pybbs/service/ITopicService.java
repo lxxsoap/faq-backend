@@ -54,4 +54,6 @@ public interface ITopicService {
     int vote(Topic topic, User user);
 
     MyPage<Map<String, Object>> selectByTitle(String title, Integer pageNo, String tab);
+
+    void updateSolvedStatus(Integer id, Boolean solved);
 }

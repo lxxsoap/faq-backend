@@ -275,4 +275,12 @@ public class TopicService implements ITopicService {
         return page;
     }
 
+    @Override
+    public void updateSolvedStatus(Integer id, Boolean solved) {
+        Topic topic = new Topic();
+        topic.setId(id);
+        topic.setSolved(solved != null ? solved : false);
+        topicMapper.updateById(topic);
+    }
+
 }

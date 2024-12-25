@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -38,9 +37,8 @@ public class Topic implements Serializable {
     private Boolean good;
     // 点赞用户的id英文,隔开的，要计算被多少人点赞过，可以通过英文,分隔这个字符串计算数量
     private String upIds;
-    @TableField("solved")
-    @JsonSerialize
-    private Boolean solved; // 是否已解决
+ 
+    private Boolean solved; // 设置默认值
 
     public String getStyle() {
         return style;
@@ -147,10 +145,10 @@ public class Topic implements Serializable {
     }
 
     public Boolean getSolved() {
-        return solved == null ? false : solved;
+        return solved ;
     }
 
     public void setSolved(Boolean solved) {
-        this.solved = solved == null ? false : solved;
+        this.solved =  solved;
     }
 }
