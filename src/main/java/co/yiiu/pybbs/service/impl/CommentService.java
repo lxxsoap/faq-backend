@@ -58,19 +58,47 @@ public class CommentService implements ICommentService {
     @Override
     public List<CommentsByTopic> selectByTopicId(Integer topicId) {
         List<CommentsByTopic> commentsByTopics = commentMapper.selectByTopicId(topicId);
-
         for (CommentsByTopic commentsByTopic : commentsByTopics) {
             // 将点赞用户id的字符串转成集合
             String upIds = commentsByTopic.getUpIds();
             Set<String> strings = StringUtils.commaDelimitedListToSet(upIds);
             commentsByTopic.setLikeCount(strings.size());
-            // 对评论内容进行过滤，然后再写入redis
-            commentsByTopic.setContent(SensitiveWordUtil.replaceSensitiveWord(commentsByTopic.getContent(), "*",
-                    SensitiveWordUtil.MinMatchType));
-
+            // 对评论内容进行过滤
+            commentsByTopic.setContent(SensitiveWordUtil.replaceSensitiveWord(
+                commentsByTopic.getContent(), 
+                "*",
+                SensitiveWordUtil.MinMatchType
+            ));
         }
         return commentsByTopics;
     }
+
+    @Override
+    public List<CommentsByTopic> selectByTopicIdAndLiked(Integer topicId, User user) {
+        List<CommentsByTopic> commentsByTopics = commentMapper.selectByTopicId(topicId);
+        for (CommentsByTopic commentsByTopic : commentsByTopics) {
+            // 将点赞用户id的字符串转成集合
+            String upIds = commentsByTopic.getUpIds();
+            Set<String> strings = StringUtils.commaDelimitedListToSet(upIds);
+            commentsByTopic.setLikeCount(strings.size());
+            
+            // 判断当前用户是否点赞
+            boolean liked = false;
+            if (user != null && !strings.isEmpty()) {
+                liked = strings.contains(user.getId().toString());
+            }
+            commentsByTopic.setLiked(liked);
+            // 对评论内容进行过滤
+            commentsByTopic.setContent(SensitiveWordUtil.replaceSensitiveWord(
+                    commentsByTopic.getContent(),
+                    "*",
+                    SensitiveWordUtil.MinMatchType
+            ));
+        }
+        return commentsByTopics;
+    }
+
+
 
     // 删除话题时删除相关的评论
     @Override
@@ -154,7 +182,7 @@ public class CommentService implements ICommentService {
 
         // 日志 TODO
 
-        // 发送TG通知
+        // 送TG通知
         new Thread(() -> {
             String formatMessage;
             String domain = systemConfigService.selectAllConfig().get("base_url");
@@ -264,3 +292,5 @@ public class CommentService implements ICommentService {
         return commentMapper.countToday();
     }
 }
+
+

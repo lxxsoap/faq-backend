@@ -102,7 +102,9 @@ public class TopicApiController extends BaseApiController {
         // 查询话题关联的标签
         List<Tag> tags = tagService.selectByTopicId(id);
         // 查询话题的评论
-        List<CommentsByTopic> comments = commentService.selectByTopicId(id);
+        List<CommentsByTopic> comments = commentService.selectByTopicIdAndLiked(id,getApiUser());
+        
+
         // 查询话题的作者信息
         User topicUser = userService.selectById(topic.getUserId());
         // 查询话题有多少收藏
@@ -225,7 +227,7 @@ public class TopicApiController extends BaseApiController {
     @PutMapping("/solved")
     public Result updateSolved(@RequestBody TopicSolvedRequestDTO dto) {
         User user = getApiUser();
-
+        
         // 查询话题
         Topic topic = topicService.selectById(dto.getId());
         if (topic == null) {

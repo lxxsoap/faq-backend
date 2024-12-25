@@ -20,12 +20,14 @@ public class CommentsByTopic extends Comment implements Serializable {
     // 评论的层级，直接评论话题的，layer即为0，如果回复了评论的，则当前回复的layer为评论对象的layer+1
     private Integer layer;
     // 评论的点赞数
-    private  Integer likeCount;
-
+    private Integer likeCount;
+    // 当前用户是否点赞
+    private Boolean liked; 
 
     public Integer getLikeCount() {
         return likeCount;
     }
+
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
     }
@@ -62,5 +64,13 @@ public class CommentsByTopic extends Comment implements Serializable {
 
     public void setChildren(LinkedHashMap<Integer, List<CommentsByTopic>> children) {
         this.children = children;
+    }
+
+    public Boolean getLiked() {
+        return liked;
+    }
+
+    public void setLiked(Boolean liked) {
+        this.liked = liked;
     }
 }

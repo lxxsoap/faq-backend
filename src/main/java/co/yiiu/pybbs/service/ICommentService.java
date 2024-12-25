@@ -18,6 +18,9 @@ public interface ICommentService {
     // 根据话题id查询评论
     List<CommentsByTopic> selectByTopicId(Integer topicId);
 
+    //根据话题id查询评论以及当前用户是否点赞评论
+    List<CommentsByTopic> selectByTopicIdAndLiked(Integer topicId,User user);
+
     // 删除话题时删除相关的评论
     void deleteByTopicId(Integer topicId);
 
