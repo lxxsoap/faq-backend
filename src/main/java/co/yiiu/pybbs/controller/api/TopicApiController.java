@@ -7,6 +7,7 @@ import co.yiiu.pybbs.model.Topic;
 import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.model.dto.TopicCreateRequestDTO;
 import co.yiiu.pybbs.model.dto.TopicUpdateRequestDTO;
+import co.yiiu.pybbs.model.dto.TopicSolvedRequestDTO;
 import co.yiiu.pybbs.model.vo.CommentsByTopic;
 import co.yiiu.pybbs.model.vo.QuestionDetailVO;
 import co.yiiu.pybbs.model.vo.TopicDetailVO;
@@ -218,5 +219,34 @@ public class TopicApiController extends BaseApiController {
         ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "给自己话题点赞，脸皮真厚！！");
         int voteCount = topicService.vote(topic, getApiUser());
         return success(voteCount);
+    }
+
+    @ApiOperation(value = "修改话题解决状态")
+    @PutMapping("/solved")
+    public Result updateSolved(@RequestBody TopicSolvedRequestDTO dto) {
+        User user = getApiUser();
+
+        // 查询话题
+        Topic topic = topicService.selectById(dto.getId());
+        if (topic == null) {
+            return error("话题不存在");
+        }
+
+        // 只有话题作者可以修改解决状态
+        ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "只有话题作者才能修改解决状态");
+
+        // 更新解决状态
+        topic.setSolved(dto.getSolved());
+        topicService.update(topic, null);
+
+        // 查询话题关联的标签
+        List<Tag> tags = tagService.selectByTopicId(topic.getId());
+
+        // 构建返回的VO对象
+        TopicDetailVO topicDetailVO = new TopicDetailVO();
+        topicDetailVO.setTopic(topic);
+        topicDetailVO.setTags(tags);
+
+        return success(topicDetailVO);
     }
 }

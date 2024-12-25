@@ -113,6 +113,7 @@ public class TopicService implements ITopicService {
         topic.setView(1);
         topic.setCollectCount(0);
         topic.setCommentCount(0);
+        topic.setSolved(false);
         topicMapper.insert(topic);
         // 增加用户积分
         user.setScore(user.getScore()
