@@ -228,28 +228,15 @@
             <artifactId>commons-text</artifactId>
             <version>1.9</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.10.1</version>
+        </dependency>
     </dependencies>
 
-    <profiles>
-        <!-- 开发环境 -->
-        <profile>
-            <id>dev</id>
-            <properties>
-                <profiles.active>dev</profiles.active>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
 
-        <!-- 生产环境 -->
-        <profile>
-            <id>prod</id>
-            <properties>
-                <profiles.active>prod</profiles.active>
-            </properties>
-        </profile>
-    </profiles>
     <build>
 
         <finalName>pybbs</finalName>
@@ -260,7 +247,6 @@
                 <includes>
                     <include>**/*.xml</include>
                     <include>application.yml</include>
-                    <include>application-${profiles.active}.yml</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
