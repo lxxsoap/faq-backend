@@ -167,7 +167,7 @@ public class TopicApiController extends BaseApiController {
         String[] strings = StringUtils.commaDelimitedListToStringArray(tags);
         Set<String> set = StringUtil.removeEmpty(strings);
         ApiAssert.notTrue(set.isEmpty() || set.size() > 3, "请输入标签且标签最多3个");
-        // 保存话题 TODO:tag标签关联实现
+        // 保存话题 
         // 再次将tag转成逗号隔开的字符串
         tags = StringUtils.collectionToCommaDelimitedString(set);
         Topic topic = topicService.insert(title, content, tags, user);
@@ -192,7 +192,7 @@ public class TopicApiController extends BaseApiController {
         topic.setTitle(Jsoup.clean(title, Whitelist.none().addTags("video")));
         topic.setContent(content);
         topic.setModifyTime(new Date());
-        topicService.update(topic, null);
+        topicService.update(topic, dto.getTags());
 
         // 处理敏感词
         topic.setContent(
