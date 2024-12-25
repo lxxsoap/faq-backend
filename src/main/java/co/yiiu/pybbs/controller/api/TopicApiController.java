@@ -9,6 +9,7 @@ import co.yiiu.pybbs.model.dto.TopicCreateRequestDTO;
 import co.yiiu.pybbs.model.dto.TopicUpdateRequestDTO;
 import co.yiiu.pybbs.model.vo.CommentsByTopic;
 import co.yiiu.pybbs.model.vo.QuestionDetailVO;
+import co.yiiu.pybbs.model.vo.TopicDetailVO;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.*;
 import io.swagger.annotations.Api;
@@ -139,16 +140,6 @@ public class TopicApiController extends BaseApiController {
         questionDetailVO.setTopicUser(topicUser);
         questionDetailVO.setCollects(collects);
         return success(questionDetailVO);
-        /**
-         * 原版pybbs返回参数 test
-         */
-        // map.put("topic", topic);
-        // map.put("tags", tags);
-        // map.put("comments", comments);
-        // map.put("topicUser", topicUser);
-        // map.put("collects", collects);
-        // return success(map);
-
     }
 
     // 保存话题
@@ -183,16 +174,29 @@ public class TopicApiController extends BaseApiController {
         String title = dto.getTitle();
         String content = dto.getContent();
         ApiAssert.notEmpty(title, "请输入标题");
+
         // 更新话题
         Topic topic = topicService.selectById(dto.getId());
         ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "谁给你的权限修改别人的话题的？");
+
         topic.setTitle(Jsoup.clean(title, Whitelist.none().addTags("video")));
         topic.setContent(content);
         topic.setModifyTime(new Date());
         topicService.update(topic, null);
+
+        // 处理敏感词
         topic.setContent(
                 SensitiveWordUtil.replaceSensitiveWord(topic.getContent(), "*", SensitiveWordUtil.MinMatchType));
-        return success(topic);
+
+        // 查询话题关联的标签
+        List<Tag> tags = tagService.selectByTopicId(topic.getId());
+
+        // 构建返回的VO对象
+        TopicDetailVO topicDetailVO = new TopicDetailVO();
+        topicDetailVO.setTopic(topic);
+        topicDetailVO.setTags(tags);
+
+        return success(topicDetailVO);
     }
 
     // 删除话题
