@@ -179,14 +179,14 @@ public class TopicApiController extends BaseApiController {
     // 更新话题
     @ApiOperation(value = "更新问题")
     @PutMapping(value = "/{id}")
-    public Result edit(@RequestBody TopicUpdateRequestDTO dto) {
+    public Result edit(@PathVariable Integer id, @RequestBody TopicUpdateRequestDTO dto) {
         User user = getApiUser();
         String title = dto.getTitle();
         String content = dto.getContent();
         ApiAssert.notEmpty(title, "请输入标题");
 
         // 更新话题
-        Topic topic = topicService.selectById(dto.getId());
+        Topic topic = topicService.selectById(id);
         ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "谁给你的权限修改别人的话题的？");
 
         topic.setTitle(Jsoup.clean(title, Whitelist.none().addTags("video")));
