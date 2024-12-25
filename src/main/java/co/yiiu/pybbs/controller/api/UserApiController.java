@@ -1,6 +1,7 @@
 package co.yiiu.pybbs.controller.api;
 
 import co.yiiu.pybbs.model.OAuthUser;
+import co.yiiu.pybbs.model.Tag;
 import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.MyPage;
@@ -35,6 +36,8 @@ public class UserApiController extends BaseApiController {
     private ICollectService collectService;
     @Resource
     private IOAuthUserService oAuthUserService;
+    @Resource
+    private ITagService tagService;
 
     // 用户的个人信息
     @ApiOperation(value = "用户个人信息")
@@ -77,8 +80,18 @@ public class UserApiController extends BaseApiController {
     public Result topics(@PathVariable String username, @RequestParam(defaultValue = "1") Integer pageNo) {
         // 查询用户个人信息
         User user = userService.selectByUsername(username);
+
         // 查询用户的话题
         MyPage<Map<String, Object>> topics = topicService.selectByUserId(user.getId(), pageNo, null);
+
+        // 为每个话题添加标签信息
+        List<Map<String, Object>> records = topics.getRecords();
+        for (Map<String, Object> topic : records) {
+            Integer topicId = (Integer) topic.get("id");
+            List<Tag> tags = tagService.selectByTopicId(topicId);
+            topic.put("tags", tags);
+        }
+
         Map<String, Object> map = new HashMap<>();
         map.put("user", user);
         map.put("topics", topics);
@@ -100,13 +113,23 @@ public class UserApiController extends BaseApiController {
     }
 
     // 用户收藏的话题
-    @ApiOperation(value = "���户收藏的问题")
+    @ApiOperation(value = "用户收藏的问题")
     @GetMapping("/{username}/collects")
     public Result collects(@PathVariable String username, @RequestParam(defaultValue = "1") Integer pageNo) {
         // 查询用户个人信息
         User user = userService.selectByUsername(username);
-        // 查询用户参与的评论
+
+        // 查询用户收藏的话题
         MyPage<Map<String, Object>> collects = collectService.selectByUserId(user.getId(), pageNo, null);
+
+        // 为每个收藏的话题添加标签信息
+        List<Map<String, Object>> records = collects.getRecords();
+        for (Map<String, Object> collect : records) {
+            Integer topicId = (Integer) collect.get("topic_id");
+            List<Tag> tags = tagService.selectByTopicId(topicId);
+            collect.put("tags", tags);
+        }
+
         Map<String, Object> map = new HashMap<>();
         map.put("user", user);
         map.put("collects", collects);
