@@ -116,7 +116,11 @@ public class TopicApiController extends BaseApiController {
         // 如果自己登录了，查询自己是否收藏过这个话题
         if (user != null) {
             Collect collect = collectService.selectByTopicIdAndUserId(id, user.getId());
-            map.put("collect", collect);
+            if (collect != null) {
+                map.put("collected", true);
+            }else{
+                map.put("collected", false);
+            }
         }
         // 话题浏览量+1
         String ip = IpUtil.getIpAddr(request);
