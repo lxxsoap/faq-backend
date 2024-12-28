@@ -87,16 +87,22 @@ public class TopicService implements ITopicService {
     // 查询用户的话题
     @Override
     public MyPage<Map<String, Object>> selectByUserId(Integer userId, Integer pageNo, Integer pageSize) {
-        MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo, pageSize == null ? Integer.parseInt(systemConfigService
-                .selectAllConfig().get("page_size").toString()) : pageSize);
-        MyPage<Map<String, Object>> page = topicMapper.selectByUserId(iPage, userId);
-        for (Map<String, Object> map : page.getRecords()) {
+        // 先获取页面大小
+        int size = pageSize == null
+                ? Integer.parseInt(systemConfigService.selectAllConfig().get("page_size").toString())
+                : pageSize;
+
+        // 创建分页对象，明确指定泛型类型
+        MyPage<Map<String, Object>> page = new MyPage<Map<String, Object>>(pageNo, size);
+
+        // 其余代码保持不变
+        MyPage<Map<String, Object>> result = topicMapper.selectByUserId(page, userId);
+        for (Map<String, Object> map : result.getRecords()) {
             Object content = map.get("content");
             map.put("content", StringUtils.isEmpty(content) ? null
-                    : SensitiveWordUtil.replaceSensitiveWord(content
-                            .toString(), "*", SensitiveWordUtil.MinMatchType));
+                    : SensitiveWordUtil.replaceSensitiveWord(content.toString(), "*", SensitiveWordUtil.MinMatchType));
         }
-        return page;
+        return result;
     }
 
     // 保存话题

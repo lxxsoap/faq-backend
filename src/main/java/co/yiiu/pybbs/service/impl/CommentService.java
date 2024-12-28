@@ -65,10 +65,9 @@ public class CommentService implements ICommentService {
             commentsByTopic.setLikeCount(strings.size());
             // 对评论内容进行过滤
             commentsByTopic.setContent(SensitiveWordUtil.replaceSensitiveWord(
-                commentsByTopic.getContent(), 
-                "*",
-                SensitiveWordUtil.MinMatchType
-            ));
+                    commentsByTopic.getContent(),
+                    "*",
+                    SensitiveWordUtil.MinMatchType));
         }
         return commentsByTopics;
     }
@@ -81,7 +80,7 @@ public class CommentService implements ICommentService {
             String upIds = commentsByTopic.getUpIds();
             Set<String> strings = StringUtils.commaDelimitedListToSet(upIds);
             commentsByTopic.setLikeCount(strings.size());
-            
+
             // 判断当前用户是否点赞
             boolean liked = false;
             if (user != null && !strings.isEmpty()) {
@@ -92,13 +91,10 @@ public class CommentService implements ICommentService {
             commentsByTopic.setContent(SensitiveWordUtil.replaceSensitiveWord(
                     commentsByTopic.getContent(),
                     "*",
-                    SensitiveWordUtil.MinMatchType
-            ));
+                    SensitiveWordUtil.MinMatchType));
         }
         return commentsByTopics;
     }
-
-
 
     // 删除话题时删除相关的评论
     @Override
@@ -131,8 +127,8 @@ public class CommentService implements ICommentService {
         topicService.update(topic, null);
 
         // 增加用户积分
-        user.setScore(user.getScore() + Integer.parseInt(systemConfigService.selectAllConfig().get
-                ("create_comment_score")));
+        user.setScore(
+                user.getScore() + Integer.parseInt(systemConfigService.selectAllConfig().get("create_comment_score")));
         userService.update(user);
 
         // 通知
@@ -146,17 +142,21 @@ public class CommentService implements ICommentService {
                 String emailTitle = "你在话题 %s 下的评论被 %s 回复了，快去看看吧！";
                 // 如果开启了websocket，就发网页通知
                 if (systemConfigService.selectAllConfig().get("websocket").equals("1")) {
-                    MyWebSocket.emit(targetComment.getUserId(), new Message("notifications", String.format(emailTitle, topic
-                            .getTitle(), user.getUsername())));
+                    MyWebSocket.emit(targetComment.getUserId(),
+                            new Message("notifications", String.format(emailTitle, topic
+                                    .getTitle(), user.getUsername())));
                     MyWebSocket.emit(targetComment.getUserId(), new Message("notification_notread", 1));
                 }
                 // 发送邮件通知
                 User targetUser = userService.selectById(targetComment.getUserId());
                 if (!StringUtils.isEmpty(targetUser.getEmail()) && targetUser.getEmailNotification()) {
                     String emailContent = "回复内容: %s <br><a href='%s/topic/%s' target='_blank'>传送门</a>";
-                    new Thread(() -> emailService.sendEmail(targetUser.getEmail(), String.format(emailTitle, topic.getTitle(),
-                            user.getUsername()), String.format(emailContent, comment.getContent(), systemConfigService
-                            .selectAllConfig().get("base_url"), topic.getId()))).start();
+                    new Thread(() -> emailService.sendEmail(targetUser.getEmail(),
+                            String.format(emailTitle, topic.getTitle(),
+                                    user.getUsername()),
+                            String.format(emailContent, comment.getContent(), systemConfigService
+                                    .selectAllConfig().get("base_url"), topic.getId())))
+                            .start();
                 }
             }
         }
@@ -167,16 +167,19 @@ public class CommentService implements ICommentService {
             String emailTitle = "%s 评论你的话题 %s 快去看看吧！";
             // 如果开启了websocket，就发网页通知
             if (systemConfigService.selectAllConfig().get("websocket").equals("1")) {
-                MyWebSocket.emit(topic.getUserId(), new Message("notifications", String.format(emailTitle, user.getUsername()
-                        , topic.getTitle())));
+                MyWebSocket.emit(topic.getUserId(),
+                        new Message("notifications", String.format(emailTitle, user.getUsername(), topic.getTitle())));
                 MyWebSocket.emit(topic.getUserId(), new Message("notification_notread", 1));
             }
             User targetUser = userService.selectById(topic.getUserId());
             if (!StringUtils.isEmpty(targetUser.getEmail()) && targetUser.getEmailNotification()) {
                 String emailContent = "评论内容: %s <br><a href='%s/topic/%s' target='_blank'>传送门</a>";
-                new Thread(() -> emailService.sendEmail(targetUser.getEmail(), String.format(emailTitle, user.getUsername(),
-                        topic.getTitle()), String.format(emailContent, comment.getContent(), systemConfigService.selectAllConfig
-                        ().get("base_url"), topic.getId()))).start();
+                new Thread(() -> emailService.sendEmail(targetUser.getEmail(),
+                        String.format(emailTitle, user.getUsername(),
+                                topic.getTitle()),
+                        String.format(emailContent, comment.getContent(),
+                                systemConfigService.selectAllConfig().get("base_url"), topic.getId())))
+                        .start();
             }
         }
 
@@ -187,9 +190,12 @@ public class CommentService implements ICommentService {
             String formatMessage;
             String domain = systemConfigService.selectAllConfig().get("base_url");
             if (systemConfigService.selectAllConfig().get("content_style").equals("MD")) {
-                formatMessage = String.format("%s 评论了话题 [%s](%s) 内容： %s", user.getUsername(), topic.getTitle(), domain + "/topic/" + topic.getId(), StringUtil.removeSpecialChar(comment.getContent()));
+                formatMessage = String.format("%s 评论了话题 [%s](%s) 内容： %s", user.getUsername(), topic.getTitle(),
+                        domain + "/topic/" + topic.getId(), StringUtil.removeSpecialChar(comment.getContent()));
             } else {
-                formatMessage = String.format("%s 评论了话题 <a href=\"%s\">%s</a> 内容： %s", user.getUsername(), domain + "/topic/" + topic.getId(), topic.getTitle(), StringUtil.removeSpecialChar(comment.getContent()));
+                formatMessage = String.format("%s 评论了话题 <a href=\"%s\">%s</a> 内容： %s", user.getUsername(),
+                        domain + "/topic/" + topic.getId(), topic.getTitle(),
+                        StringUtil.removeSpecialChar(comment.getContent()));
             }
             Integer message_id = telegramBotService.init().sendMessage(formatMessage, true, null);
             Comment newComment = new Comment();
@@ -256,8 +262,8 @@ public class CommentService implements ICommentService {
             topicService.update(topic, null);
             // 减去用户积分
             User user = userService.selectById(comment.getUserId());
-            user.setScore(user.getScore() - Integer.parseInt(systemConfigService.selectAllConfig().get
-                    ("delete_comment_score").toString()));
+            user.setScore(user.getScore()
+                    - Integer.parseInt(systemConfigService.selectAllConfig().get("delete_comment_score").toString()));
             userService.update(user);
             // 删除评论
             commentMapper.deleteById(comment.getId());
@@ -267,22 +273,36 @@ public class CommentService implements ICommentService {
     // 查询用户的评论
     @Override
     public MyPage<Map<String, Object>> selectByUserId(Integer userId, Integer pageNo, Integer pageSize) {
-        MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo, pageSize == null ? Integer.parseInt(systemConfigService
-                .selectAllConfig().get("page_size").toString()) : pageSize);
-        MyPage<Map<String, Object>> page = commentMapper.selectByUserId(iPage, userId);
-        for (Map<String, Object> map : page.getRecords()) {
+        // 获取分页大小
+        int size = pageSize == null
+                ? Integer.parseInt(systemConfigService.selectAllConfig().get("page_size").toString())
+                : pageSize;
+
+        // 明确指定泛型类型
+        MyPage<Map<String, Object>> page = new MyPage<Map<String, Object>>(pageNo, size);
+
+        // 执行查询
+        MyPage<Map<String, Object>> result = commentMapper.selectByUserId(page, userId);
+
+        // 处理评论内容（如果需要）
+        for (Map<String, Object> map : result.getRecords()) {
             Object content = map.get("content");
-            map.put("content", StringUtils.isEmpty(content) ? null : SensitiveWordUtil.replaceSensitiveWord(content
-                    .toString(), "*", SensitiveWordUtil.MinMatchType));
+            if (content != null) {
+                map.put("content", SensitiveWordUtil.replaceSensitiveWord(
+                        content.toString(), "*", SensitiveWordUtil.MinMatchType));
+            }
         }
-        return page;
+
+        return result;
     }
 
     // ---------------------------- admin ----------------------------
 
     @Override
-    public MyPage<Map<String, Object>> selectAllForAdmin(Integer pageNo, String startDate, String endDate, String username) {
-        MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo, Integer.parseInt((String) systemConfigService.selectAllConfig().get("page_size")));
+    public MyPage<Map<String, Object>> selectAllForAdmin(Integer pageNo, String startDate, String endDate,
+            String username) {
+        MyPage<Map<String, Object>> iPage = new MyPage<>(pageNo,
+                Integer.parseInt((String) systemConfigService.selectAllConfig().get("page_size")));
         return commentMapper.selectAllForAdmin(iPage, startDate, endDate, username);
     }
 
@@ -292,5 +312,3 @@ public class CommentService implements ICommentService {
         return commentMapper.countToday();
     }
 }
-
-

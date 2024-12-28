@@ -125,8 +125,9 @@ public class TagService implements ITagService {
     // 查询标签列表
     @Override
     public IPage<Tag> selectAll(Integer pageNo, Integer pageSize, String name) {
-        IPage<Tag> iPage = new MyPage<>(pageNo, pageSize == null ? Integer.parseInt(systemConfigService.selectAllConfig()
-                .get("page_size").toString()) : pageSize);
+        IPage<Tag> iPage = new MyPage<Tag>(pageNo,
+                pageSize == null ? Integer.parseInt(systemConfigService.selectAllConfig()
+                        .get("page_size").toString()) : pageSize);
         QueryWrapper<Tag> wrapper = new QueryWrapper<>();
         // 当传进来的name不为null的时候，就根据name查询
         if (!StringUtils.isEmpty(name)) {
@@ -149,8 +150,7 @@ public class TagService implements ITagService {
 
     // ---------------------------- admin ----------------------------
 
-
-    //同步标签的话题数
+    // 同步标签的话题数
     @Override
     public void async() {
         List<Tag> tags = tagMapper.selectList(null);

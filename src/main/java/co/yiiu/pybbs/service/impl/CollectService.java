@@ -61,7 +61,8 @@ public class CollectService implements ICollectService {
         QueryWrapper<Collect> wrapper = new QueryWrapper<>();
         wrapper.lambda().eq(Collect::getTopicId, topicId).eq(Collect::getUserId, userId);
         List<Collect> collects = collectMapper.selectList(wrapper);
-        if (collects.size() > 0) return collects.get(0);
+        if (collects.size() > 0)
+            return collects.get(0);
         return null;
     }
 
@@ -85,15 +86,19 @@ public class CollectService implements ICollectService {
             String emailTitle = "你的话题 %s 被 %s 收藏了，快去看看吧！";
             // 如果开启了websocket，就发网页通知
             if (systemConfigService.selectAllConfig().get("websocket").toString().equals("1")) {
-                MyWebSocket.emit(topic.getUserId(), new Message("notifications", String.format(emailTitle, topic.getTitle(),
-                        user.getUsername())));
+                MyWebSocket.emit(topic.getUserId(),
+                        new Message("notifications", String.format(emailTitle, topic.getTitle(),
+                                user.getUsername())));
             }
             User targetUser = userService.selectById(topic.getUserId());
             if (!StringUtils.isEmpty(targetUser.getEmail()) && targetUser.getEmailNotification()) {
                 String emailContent = "<a href='%s/notifications' target='_blank'>传送门</a>";
-                new Thread(() -> emailService.sendEmail(targetUser.getEmail(), String.format(emailTitle, topic.getTitle(),
-                        user.getUsername()), String.format(emailContent, systemConfigService.selectAllConfig().get("base_url")
-                        .toString()))).start();
+                new Thread(() -> emailService.sendEmail(targetUser.getEmail(),
+                        String.format(emailTitle, topic.getTitle(),
+                                user.getUsername()),
+                        String.format(emailContent, systemConfigService.selectAllConfig().get("base_url")
+                                .toString())))
+                        .start();
             }
         }
 
@@ -139,13 +144,15 @@ public class CollectService implements ICollectService {
     // 查询用户收藏的话题
     @Override
     public MyPage<Map<String, Object>> selectByUserId(Integer userId, Integer pageNo, Integer pageSize) {
-        MyPage<Map<String, Object>> page = new MyPage<>(pageNo, pageSize == null ? Integer.parseInt(systemConfigService
-                .selectAllConfig().get("page_size").toString()) : pageSize);
+        MyPage<Map<String, Object>> page = new MyPage<Map<String, Object>>(pageNo,
+                pageSize == null ? Integer.parseInt(systemConfigService
+                        .selectAllConfig().get("page_size").toString()) : pageSize);
         page = collectMapper.selectByUserId(page, userId);
         for (Map<String, Object> map : page.getRecords()) {
             Object content = map.get("content");
-            map.put("content", StringUtils.isEmpty(content) ? null : SensitiveWordUtil.replaceSensitiveWord(content
-                    .toString(), "*", SensitiveWordUtil.MinMatchType));
+            map.put("content", StringUtils.isEmpty(content) ? null
+                    : SensitiveWordUtil.replaceSensitiveWord(content
+                            .toString(), "*", SensitiveWordUtil.MinMatchType));
         }
         tagService.selectTagsByTopicId(page);
         return page;
