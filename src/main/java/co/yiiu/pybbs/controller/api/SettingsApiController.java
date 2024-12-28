@@ -46,7 +46,7 @@ public class SettingsApiController extends BaseApiController {
     
         // 查询当前用户的最新信息
         User user1 = userService.selectById(user.getId());
-        user1.setTelegramName(dto.getTelegramName());
+       user1.setNickName(dto.getNickName());
         user1.setWebsite(dto.getWebsite());
         user1.setBio(dto.getBio());
         user1.setEmailNotification(dto.getEmailNotification());

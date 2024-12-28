@@ -1,7 +1,7 @@
 package co.yiiu.pybbs.model.dto;
 
 public class UpdateProfileRequestDTO {
-    private String telegramName;
+    private String nickName;
     private String website;
     private String bio;
     private Boolean emailNotification;
@@ -9,8 +9,8 @@ public class UpdateProfileRequestDTO {
     private String tags;
 
     // Getter 和 Setter 方法
-    public String getTelegramName() {
-        return telegramName;
+    public String getNickName() {
+        return nickName;
     }
     public String getWebsite() {
         return website;
@@ -27,8 +27,8 @@ public class UpdateProfileRequestDTO {
     public String getTags() {
         return tags;
     }
-    public void setTelegramName(String telegramName) {
-        this.telegramName = telegramName;
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
     public void setWebsite(String website) {
         this.website = website;

@@ -41,11 +41,21 @@ public class User implements Serializable {
     private String career;
     // 兴趣标签
     private String tags;
+    // 用户昵称
+    private String nickName;
 
     // 有消息通知是否通过telegram收取
     // 文档上写的可以通过username跟userId发送消息，但测试结果是只能通过userId发送
     // 难道我调接口的姿势不对？待我后面再收拾它。。
     // private Boolean telegramNotification;
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
     public Boolean getEmailNotification() {
         return emailNotification;
@@ -180,6 +190,6 @@ public class User implements Serializable {
         return "User{" + "id=" + id + ", username='" + username + '\'' + ", telegramName='" + telegramName + '\'' + ", "
                 + "avatar='" + avatar + '\'' + ", password='" + password + '\'' + ", email='" + email + '\'' + ", mobile='" +
                 mobile + '\'' + ", website='" + website + '\'' + ", bio='" + bio + '\'' + ", score=" + score + ", inTime=" +
-                inTime + ", token='" + token + '\'' + ", emailNotification=" + emailNotification + ", active=" + active + ", career='" + career + '\'' + ", tags='" + tags + '\'' + '}';
+                inTime + ", token='" + token + '\'' + ", emailNotification=" + emailNotification + ", active=" + active + ", career='" + career + '\'' + ", tags='" + tags + '\'' + ", nickName='" + nickName + '\'' + '}';
     }
 }
