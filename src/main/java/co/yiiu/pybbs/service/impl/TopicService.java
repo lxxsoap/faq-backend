@@ -289,4 +289,9 @@ public class TopicService implements ITopicService {
         topicMapper.updateById(topic);
     }
 
+    @Override
+    public int countUpByUserId(Integer userId) {
+        return topicMapper.countUpByUserId(userId);
+    }
+
 }

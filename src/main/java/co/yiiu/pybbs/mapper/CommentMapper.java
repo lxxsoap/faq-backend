@@ -5,6 +5,7 @@ import co.yiiu.pybbs.model.vo.CommentsByTopic;
 import co.yiiu.pybbs.util.MyPage;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Map;
@@ -20,8 +21,11 @@ public interface CommentMapper extends BaseMapper<Comment> {
 
     MyPage<Map<String, Object>> selectByUserId(MyPage<Map<String, Object>> iPage, @Param("userId") Integer userId);
 
-    MyPage<Map<String, Object>> selectAllForAdmin(MyPage<Map<String, Object>> iPage, @Param("startDate") String
-            startDate, @Param("endDate") String endDate, @Param("username") String username);
+    MyPage<Map<String, Object>> selectAllForAdmin(MyPage<Map<String, Object>> iPage,
+            @Param("startDate") String startDate, @Param("endDate") String endDate, @Param("username") String username);
 
     int countToday();
+
+    @Select("SELECT COUNT(*) FROM comment WHERE user_id = #{userId}")
+    int countByUserId(@Param("userId") Integer userId);
 }

@@ -1,5 +1,7 @@
 package co.yiiu.pybbs.service.impl;
 
+import co.yiiu.pybbs.mapper.CommentMapper;
+import co.yiiu.pybbs.mapper.TopicMapper;
 import co.yiiu.pybbs.mapper.UserMapper;
 import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.service.*;
@@ -22,8 +24,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.HashMap;
+import co.yiiu.pybbs.model.Tag;
+import co.yiiu.pybbs.model.Topic;
+import co.yiiu.pybbs.model.Comment;
 
 /**
  * Created by tomoya.
@@ -53,6 +60,12 @@ public class UserService implements IUserService {
     private ISystemConfigService systemConfigService;
     @Resource
     private ICodeService codeService;
+    @Resource
+    private ITagService tagService;
+    @Resource
+    private TopicMapper topicMapper;
+    @Resource
+    private CommentMapper commentMapper;
 
     // 根据用户名查询用户，用于获取用户的信息比对密码
     @Override
@@ -90,14 +103,16 @@ public class UserService implements IUserService {
      */
     @Override
     public User addUser(String username, String password, String avatar, String email, String bio, String website,
-                        boolean needActiveEmail) {
+            boolean needActiveEmail) {
         String token = this.generateToken();
         User user = new User();
         user.setUsername(username);
-        if (!StringUtils.isEmpty(password)) user.setPassword(new BCryptPasswordEncoder().encode(password));
+        if (!StringUtils.isEmpty(password))
+            user.setPassword(new BCryptPasswordEncoder().encode(password));
         user.setToken(token);
         user.setInTime(new Date());
-        if (avatar == null) avatar = identicon.generator(username);
+        if (avatar == null)
+            avatar = identicon.generator(username);
         user.setAvatar(avatar);
         user.setEmail(email);
         user.setBio(bio);
@@ -109,10 +124,14 @@ public class UserService implements IUserService {
             new Thread(() -> {
                 String title = "感谢注册%s，点击下面链接激活帐号";
                 String content = "如果不是你注册了%s，请忽略此邮件&nbsp;&nbsp;<a href='%s/active?email=%s&code=${code}'>点击激活</a>";
-                codeService.sendEmail(user.getId(), email, String.format(title, systemConfigService.selectAllConfig().get(
-                        "base_url").toString()), String.format(content,
-                        systemConfigService.selectAllConfig().get("name").toString(), systemConfigService.selectAllConfig().get(
-                                "base_url").toString(), email));
+                codeService.sendEmail(user.getId(), email,
+                        String.format(title, systemConfigService.selectAllConfig().get(
+                                "base_url").toString()),
+                        String.format(content,
+                                systemConfigService.selectAllConfig().get("name").toString(),
+                                systemConfigService.selectAllConfig().get(
+                                        "base_url").toString(),
+                                email));
             }).start();
         }
         // 再查一下，有些数据库里默认值保存后，类里还是null
@@ -198,7 +217,7 @@ public class UserService implements IUserService {
     @Override
     public void update(User user) {
         userMapper.updateById(user);
-        
+
         // 更新session中的用户
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder
                 .getRequestAttributes())).getRequest();
@@ -209,11 +228,13 @@ public class UserService implements IUserService {
         SpringContextUtil.getBean(UserService.class).delRedisUser(user);
     }
 
-    // ------------------------------- admin ------------------------------------------
+    // ------------------------------- admin
+    // ------------------------------------------
 
     @Override
     public IPage<User> selectAll(Integer pageNo, String username) {
-        MyPage<User> page = new MyPage<>(pageNo, Integer.parseInt((String) systemConfigService.selectAllConfig().get("page_size")));
+        MyPage<User> page = new MyPage<>(pageNo,
+                Integer.parseInt((String) systemConfigService.selectAllConfig().get("page_size")));
         page.setDesc("in_time");
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(username)) {
@@ -256,5 +277,41 @@ public class UserService implements IUserService {
     @Override
     public void delRedisUser(User user) {
 
+    }
+
+    @Override
+    public Map<String, Object> getPublicUser(Integer userId) {
+        User user = this.selectById(userId);
+        if (user == null)
+            return null;
+
+        // 查询用户的话题数（发布数）
+        int topicCount = topicMapper.countByUserId(userId);
+
+        // 查询用户的评论数（回答数）
+        int commentCount = commentMapper.countByUserId(userId);
+
+        // 查询用户获得的点赞数（获赞与讨论）
+        int likeCount = topicService.countUpByUserId(userId);
+
+        // 查询用户发布的所有话题
+        MyPage<Map<String, Object>> topics = topicService.selectByUserId(userId, 1, 10);
+
+        // 为话题添加标签信息
+        List<Map<String, Object>> records = topics.getRecords();
+        for (Map<String, Object> topic : records) {
+            Integer topicId = (Integer) topic.get("id");
+            List<Tag> tags = tagService.selectByTopicId(topicId);
+            topic.put("tags", tags);
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("user", user);
+        map.put("topicCount", topicCount); // 发布数
+        map.put("commentCount", commentCount); // 回答数
+        map.put("likeCount", likeCount); // 获赞与讨论数
+        map.put("topics", topics); // 发布的话题列表
+
+        return map;
     }
 }

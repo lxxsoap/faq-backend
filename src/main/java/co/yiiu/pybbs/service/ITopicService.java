@@ -56,4 +56,6 @@ public interface ITopicService {
     MyPage<Map<String, Object>> selectByTitle(String title, Integer pageNo, String tab);
 
     void updateSolvedStatus(Integer id, Boolean solved);
+
+    int countUpByUserId(Integer userId);
 }

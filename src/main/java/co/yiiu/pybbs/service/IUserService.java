@@ -4,6 +4,7 @@ import co.yiiu.pybbs.model.User;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by tomoya.
@@ -15,7 +16,7 @@ public interface IUserService {
     User selectByUsername(String username);
 
     User addUser(String username, String password, String avatar, String email, String bio, String website,
-                 boolean needActiveEmail);
+            boolean needActiveEmail);
 
     // 通过手机号登录/注册创建用户
     User addUserWithMobile(String mobile);
@@ -51,4 +52,7 @@ public interface IUserService {
 
     // 删除redis缓存
     void delRedisUser(User user);
+
+    // 获取用户公开信息
+    Map<String, Object> getPublicUser(Integer userId);
 }
