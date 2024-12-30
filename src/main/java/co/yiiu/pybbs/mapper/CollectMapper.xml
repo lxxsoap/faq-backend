@@ -12,7 +12,7 @@
     </sql>-->
 
     <select id="selectByUserId" resultType="map">
-        select t.*, u.username, u.avatar
+        select t.*, u.username, u.avatar,u.nick_name
         from collect c
                  left join topic t on t.id = c.topic_id
                  left join user u on t.user_id = u.id

@@ -135,6 +135,7 @@ public class TopicApiController extends BaseApiController {
         QuestionDetailVO questionDetailVO = new QuestionDetailVO();
         // topic转换成questionDetailVO
         questionDetailVO.setUserName(topicUser.getUsername());
+        questionDetailVO.setNickName(topicUser.getNickName());
         questionDetailVO.setId(topic.getId());
         questionDetailVO.setTitle(topic.getTitle());
         questionDetailVO.setContent(topic.getContent());

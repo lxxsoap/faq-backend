@@ -18,6 +18,8 @@ import java.util.List;
 public class QuestionDetailVO extends Topic {
 
     private String userName;
+
+    private String nickName;
     private List<Tag> tags;
 
     private List<CommentsByTopic> comments;
@@ -25,6 +27,12 @@ public class QuestionDetailVO extends Topic {
     private List<Collect> collects;
 
     //get set
+    public String getNickName() {
+        return nickName;
+    }
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
     public String getUserName() {
         return userName;
     }
