@@ -16,6 +16,8 @@ public class CommentsByTopic extends Comment implements Serializable {
     // 话题下面的评论列表单个对象的数据结构
 
     private String username;
+
+    private String nickName;
     private String avatar;
     // 评论的层级，直接评论话题的，layer即为0，如果回复了评论的，则当前回复的layer为评论对象的layer+1
     private Integer layer;
@@ -24,6 +26,12 @@ public class CommentsByTopic extends Comment implements Serializable {
     // 当前用户是否点赞
     private Boolean liked; 
 
+    public String getNickName() {
+        return nickName;
+    }
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
     public Integer getLikeCount() {
         return likeCount;
     }
