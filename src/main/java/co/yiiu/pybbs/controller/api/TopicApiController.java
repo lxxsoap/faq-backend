@@ -99,6 +99,9 @@ public class TopicApiController extends BaseApiController {
         Map<String, Object> map = new HashMap<>();
         // 查询话题详情
         Topic topic = topicService.selectById(id);
+        if (topic == null) {
+            return error("话题不存在");
+        }
         // 查询话题关联的标签
         List<Tag> tags = tagService.selectByTopicId(id);
         // 查询话题的评论
@@ -227,7 +230,7 @@ public class TopicApiController extends BaseApiController {
         User user = getApiUser();
         Topic topic = topicService.selectById(id);
         ApiAssert.notNull(topic, "这个话题可能已经被删除了");
-        ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "给自己话题点��，脸皮真厚！！");
+        ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "给自己话题点赞，脸皮真厚！！");
         int voteCount = topicService.vote(topic, getApiUser());
         return success(voteCount);
     }

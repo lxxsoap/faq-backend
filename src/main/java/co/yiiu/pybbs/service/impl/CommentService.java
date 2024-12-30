@@ -254,6 +254,7 @@ public class CommentService implements ICommentService {
 
     // 删除评论
     @Override
+    @Transactional
     public void delete(Comment comment) {
         if (comment != null) {
             // 话题评论数-1

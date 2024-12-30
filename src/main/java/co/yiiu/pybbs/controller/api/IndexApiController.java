@@ -114,7 +114,7 @@ public class IndexApiController extends BaseApiController {
     @PostMapping("/register")
     public Result register(@RequestBody RegisterRequestDTO  dto, HttpSession session) {
         String username = dto.getUsername();
-        String password = dto.getEmail();
+        String password = dto.getPassword();
         String email = dto.getEmail();
 //        String captcha = body.get("captcha");
 //        String _captcha = (String) session.getAttribute("_captcha");
@@ -249,5 +249,8 @@ public class IndexApiController extends BaseApiController {
         resultMap.put("errors", errors);
         return success(resultMap);
     }
+
+    // 测试代码
+
 
 }
