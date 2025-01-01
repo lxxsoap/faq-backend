@@ -96,7 +96,8 @@ public class TopicApiController extends BaseApiController {
     @ApiOperation(value = "问题详情")
     @GetMapping("/{id}")
     public Result detail(@PathVariable Integer id, HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<>();
+       
+        QuestionDetailVO questionDetailVO = new QuestionDetailVO();
         // 查询话题详情
         Topic topic = topicService.selectById(id);
         if (topic == null) {
@@ -120,9 +121,9 @@ public class TopicApiController extends BaseApiController {
         if (user != null) {
             Collect collect = collectService.selectByTopicIdAndUserId(id, user.getId());
             if (collect != null) {
-                map.put("collected", true);
+                questionDetailVO.setCollected(true);
             } else {
-                map.put("collected", false);
+                questionDetailVO.setCollected(false);
             }
         }
         // 话题浏览量+1
@@ -135,8 +136,6 @@ public class TopicApiController extends BaseApiController {
         /**
          * faq-backend返回参数
          */
-        QuestionDetailVO questionDetailVO = new QuestionDetailVO();
-        // topic转换成questionDetailVO
         questionDetailVO.setUserName(topicUser.getUsername());
         questionDetailVO.setNickName(topicUser.getNickName());
         questionDetailVO.setId(topic.getId());

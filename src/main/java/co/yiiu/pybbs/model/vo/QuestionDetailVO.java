@@ -20,6 +20,7 @@ public class QuestionDetailVO extends Topic {
     private String userName;
 
     private String nickName;
+    private Boolean collected;
     private List<Tag> tags;
 
     private List<CommentsByTopic> comments;
@@ -27,6 +28,12 @@ public class QuestionDetailVO extends Topic {
     private List<Collect> collects;
 
     //get set
+    public Boolean getCollected() {
+        return collected;
+    }
+    public void setCollected(Boolean collected) {
+        this.collected = collected;
+    }
     public String getNickName() {
         return nickName;
     }
