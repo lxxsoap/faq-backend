@@ -191,7 +191,7 @@ public class TopicApiController extends BaseApiController {
 
         // 更新话题
         Topic topic = topicService.selectById(id);
-        ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "谁给你的权限修改别人的话题的？");
+        ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "无权修改他人话题");
 
         topic.setTitle(Jsoup.clean(title, Whitelist.none().addTags("video")));
         topic.setContent(content);
@@ -219,7 +219,7 @@ public class TopicApiController extends BaseApiController {
     public Result delete(@PathVariable Integer id) {
         User user = getApiUser();
         Topic topic = topicService.selectById(id);
-        ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "谁给你的权限删除别人的话题的？");
+        ApiAssert.isTrue(topic.getUserId().equals(user.getId()), "无权修改他人话题");
         topicService.delete(topic);
         return success();
     }
@@ -228,8 +228,8 @@ public class TopicApiController extends BaseApiController {
     public Result vote(@PathVariable Integer id) {
         User user = getApiUser();
         Topic topic = topicService.selectById(id);
-        ApiAssert.notNull(topic, "这个话题可能已经被删除了");
-        ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "给自己话题点赞，脸皮真厚！！");
+        ApiAssert.notNull(topic, "话题不存在");
+       // ApiAssert.notTrue(topic.getUserId().equals(user.getId()), "不能给自己点赞");
         int voteCount = topicService.vote(topic, getApiUser());
         return success(voteCount);
     }

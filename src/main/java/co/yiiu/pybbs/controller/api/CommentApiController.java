@@ -46,12 +46,12 @@ public class CommentApiController extends BaseApiController {
         String content = dto.getContent();
         Integer topicId = dto.getTopicId();
         Integer commentId = dto.getCommentId();
-    
+
         ApiAssert.notEmpty(content, "请输入评论内容");
         ApiAssert.notNull(topicId, "话题ID呢？");
         Topic topic = topicService.selectById(topicId);
-        ApiAssert.notNull(topic, "你晚了一步，话题可能已经被删除了");
-    
+        ApiAssert.notNull(topic, "话题不存在");
+
         // 组装comment对象
         Comment comment = new Comment();
         comment.setCommentId(commentId);
@@ -62,7 +62,8 @@ public class CommentApiController extends BaseApiController {
         comment.setUserId(user.getId());
         comment = commentService.insert(comment, topic, user);
         // 过滤评论内容
-        comment.setContent(SensitiveWordUtil.replaceSensitiveWord(comment.getContent(), "*", SensitiveWordUtil.MinMatchType));
+        comment.setContent(
+                SensitiveWordUtil.replaceSensitiveWord(comment.getContent(), "*", SensitiveWordUtil.MinMatchType));
         return success(comment);
     }
 
@@ -73,15 +74,15 @@ public class CommentApiController extends BaseApiController {
     public Result update(@PathVariable Integer id, @RequestBody CommentUpdateRequestDTO dto) {
         User user = getApiUser();
         String content = dto.getContent();
-        ApiAssert.notNull(id, "评论ID呢？");
+        ApiAssert.notNull(id, "评论id为空");
         ApiAssert.notEmpty(content, "请输入评论内容");
         Comment comment = commentService.selectById(id);
-        ApiAssert.notNull(comment, "这个评论可能已经被删除了，多发点对别人有帮助的评论吧");
-        ApiAssert.isTrue(comment.getUserId().equals(user.getId()), "请给你的权限让你编辑别人的评论？");
+        ApiAssert.notNull(comment, "评论不存在");
+        ApiAssert.isTrue(comment.getUserId().equals(user.getId()), "无权编辑此评论");
         comment.setContent(content);
         commentService.update(comment);
-        comment.setContent(SensitiveWordUtil.replaceSensitiveWord(comment.getContent(), "*", SensitiveWordUtil
-                .MinMatchType));
+        comment.setContent(
+                SensitiveWordUtil.replaceSensitiveWord(comment.getContent(), "*", SensitiveWordUtil.MinMatchType));
         return success(comment);
     }
 
@@ -91,8 +92,8 @@ public class CommentApiController extends BaseApiController {
     public Result delete(@PathVariable Integer id) {
         User user = getApiUser();
         Comment comment = commentService.selectById(id);
-        ApiAssert.notNull(comment, "这个评论可能已经被删除了，多发点对别人有帮助的评论吧");
-        ApiAssert.isTrue(comment.getUserId().equals(user.getId()), "请给你的权限让你删除别人的评论？");
+        ApiAssert.notNull(comment, "评论不存在");
+        ApiAssert.isTrue(comment.getUserId().equals(user.getId()), "无权删除此评论");
         commentService.delete(comment);
         return success();
     }
@@ -103,8 +104,8 @@ public class CommentApiController extends BaseApiController {
     public Result vote(@PathVariable Integer id) {
         User user = getApiUser();
         Comment comment = commentService.selectById(id);
-        ApiAssert.notNull(comment, "这个评论可能已经被删除了");
-        ApiAssert.notTrue(comment.getUserId().equals(user.getId()), "给自己评论点赞，脸皮真厚！！");
+        ApiAssert.notNull(comment, "评论不存在");
+       // ApiAssert.notTrue(comment.getUserId().equals(user.getId()), "不能给自己的评论点赞");
         int voteCount = commentService.vote(comment, user);
         return success(voteCount);
     }

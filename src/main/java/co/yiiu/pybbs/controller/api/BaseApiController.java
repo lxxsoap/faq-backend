@@ -53,17 +53,18 @@ public class BaseApiController extends BaseController {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder
                 .getRequestAttributes())).getRequest();
         String token = request.getHeader("token");
-        //    String token = request.getParameter("token");
+        // String token = request.getParameter("token");
         if (required) { // token必须要
             // 判断token是否存在，不存在要抛异常
             ApiAssert.notEmpty(token, "token不能为空");
             // 用token查用户信息，查不到要抛异常
             User user = userService.selectByToken(token);
-            ApiAssert.notNull(user, "token不正确，请在网站上登录自己的帐号，然后进入个人设置页面扫描二维码获取token");
+            ApiAssert.notNull(user, "无效的token，请重新登录获取");
             return user;
         } else { // token非必须
             // 先判断token存在不，不存在直接返回null
-            if (StringUtils.isEmpty(token)) return null;
+            if (StringUtils.isEmpty(token))
+                return null;
             // 如果token存在，直接查询用户信息，不管查到查不到，都直接返回
             return userService.selectByToken(token);
         }

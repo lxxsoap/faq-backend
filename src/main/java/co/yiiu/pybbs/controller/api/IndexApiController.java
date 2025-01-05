@@ -142,7 +142,7 @@ public class IndexApiController extends BaseApiController {
         ApiAssert.isTrue(StringUtil.check(mobile, StringUtil.MOBILEREGEX), "请输入正确的手机号");
         boolean b = codeService.sendSms(mobile);
         if (!b) {
-            return error("短信发送失败或者站长没有配置短信服务");
+            return error("短信发送失败,站长没有配置短信服务");
         } else {
             return success();
         }
