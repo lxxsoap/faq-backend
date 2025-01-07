@@ -74,6 +74,7 @@ public class CommentService implements ICommentService {
 
     @Override
     public List<CommentsByTopic> selectByTopicIdAndLiked(Integer topicId, User user) {
+
         List<CommentsByTopic> commentsByTopics = commentMapper.selectByTopicId(topicId);
         for (CommentsByTopic commentsByTopic : commentsByTopics) {
             // 将点赞用户id的字符串转成集合

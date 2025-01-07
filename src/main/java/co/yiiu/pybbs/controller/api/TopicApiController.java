@@ -109,8 +109,10 @@ public class TopicApiController extends BaseApiController {
         User user = getApiUser(false);
         List<CommentsByTopic> comments;
         if (user != null) {
+            //TODO 暂未限制评论的审核状态
             comments = commentService.selectByTopicIdAndLiked(id, user);
         } else {
+             //TODO 暂未限制评论的审核状态
             comments = commentService.selectByTopicId(id);
         }
         // 查询话题的作者信息

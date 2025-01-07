@@ -112,13 +112,7 @@ public class UserApiController extends BaseApiController {
         // 查询用户收藏的话题
         MyPage<Map<String, Object>> collects = collectService.selectByUserId(user.getId(), pageNo, null);
 
-        // 为每个收藏的话题添加标签信息
-        List<Map<String, Object>> records = collects.getRecords();
-        for (Map<String, Object> collect : records) {
-            Integer topicId = (Integer) collect.get("topic_id");
-            List<Tag> tags = tagService.selectByTopicId(topicId);
-            collect.put("tags", tags);
-        }
+
 
         Map<String, Object> map = new HashMap<>();
         map.put("user", user);
