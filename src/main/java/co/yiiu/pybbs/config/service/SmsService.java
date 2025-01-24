@@ -38,8 +38,7 @@ public class SmsService {
     private String templateCode;
     private String regionId;
 
- @Resource
-    private JedisPool jedisPool;
+
     
    
 
