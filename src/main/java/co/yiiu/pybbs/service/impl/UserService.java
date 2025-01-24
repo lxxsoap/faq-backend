@@ -157,6 +157,7 @@ public class UserService implements IUserService {
             String username = generateUsername();
             user = new User();
             user.setUsername(username);
+            user.setMobile(mobile);
             user.setToken(token);
             user.setInTime(new Date());
             user.setAvatar(identicon.generator(username));

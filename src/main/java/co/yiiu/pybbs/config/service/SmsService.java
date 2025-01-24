@@ -1,7 +1,6 @@
 package co.yiiu.pybbs.config.service;
 
 import co.yiiu.pybbs.service.ISystemConfigService;
-import co.yiiu.pybbs.util.JsonUtil;
 //import com.aliyuncs.CommonRequest;
 //import com.aliyuncs.CommonResponse;
 //import com.aliyuncs.DefaultAcsClient;
@@ -14,15 +13,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
-
 import javax.annotation.Resource;
-import java.util.Map;
 import com.aliyun.auth.credentials.Credential;
 import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
 import com.aliyun.sdk.service.dysmsapi20170525.AsyncClient;
 import com.aliyun.sdk.service.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.sdk.service.dysmsapi20170525.models.SendSmsResponse;
 import darabonba.core.client.ClientOverrideConfiguration;
+import redis.clients.jedis.JedisPool;
+
 
 
 @Component
@@ -38,6 +37,11 @@ public class SmsService {
     private String signName;
     private String templateCode;
     private String regionId;
+
+ @Resource
+    private JedisPool jedisPool;
+    
+   
 
     private SmsService() {
     }
@@ -92,6 +96,8 @@ private AsyncClient instance() {
         return null;
     }
 }
+
+
 
     // 发短信
     public boolean sendSms(String mobile, String code) {
