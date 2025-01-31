@@ -79,7 +79,7 @@ public class CodeService implements ICodeService {
             code.setEmail(email);
             code.setMobile(mobile);
             code.setInTime(new Date());
-            code.setExpireTime(DateUtil.getMinuteAfter(new Date(), 30));
+            code.setExpireTime(DateUtil.getMinuteAfter(new Date(), 5));
             codeMapper.insert(code);
         }
         return code;

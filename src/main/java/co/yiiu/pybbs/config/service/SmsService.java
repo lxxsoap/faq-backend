@@ -1,18 +1,17 @@
 package co.yiiu.pybbs.config.service;
 
 import co.yiiu.pybbs.service.ISystemConfigService;
-//import com.aliyuncs.CommonRequest;
-//import com.aliyuncs.CommonResponse;
-//import com.aliyuncs.DefaultAcsClient;
-//import com.aliyuncs.IAcsClient;
-//import com.aliyuncs.exceptions.ClientException;
-//import com.aliyuncs.http.MethodType;
-//import com.aliyuncs.profile.DefaultProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import com.aliyun.auth.credentials.Credential;
 import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
@@ -20,47 +19,43 @@ import com.aliyun.sdk.service.dysmsapi20170525.AsyncClient;
 import com.aliyun.sdk.service.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.sdk.service.dysmsapi20170525.models.SendSmsResponse;
 import darabonba.core.client.ClientOverrideConfiguration;
-import redis.clients.jedis.JedisPool;
+
 
 
 
 @Component
 @DependsOn("mybatisPlusConfig")
-public class SmsService {
+public class SmsService implements DisposableBean{
 
     private Logger log = LoggerFactory.getLogger(SmsService.class);
 
     @Resource
     private ISystemConfigService systemConfigService;
 
-//    private IAcsClient client;
+
     private String signName;
     private String templateCode;
     private String regionId;
+    private AsyncClient client;
 
+    private final Map<String, Long> lastSendTimeMap = new ConcurrentHashMap<>();
+    private static final long MIN_INTERVAL = 60000; // 60秒内不能重复发送
 
     
    
 
     private SmsService() {
     }
+    @PreDestroy
+    @Override
+    public void destroy() throws Exception {
+        if (client != null) {
+            client.close();
+            log.info("SMS client closed successfully");
+        }
+    }
 
-    // public IAcsClient instance() {
-    //     if (client != null) return client;
-    //     String accessKeyId = (String) systemConfigService.selectAllConfig().get("sms_access_key_id");
-    //     String secret = (String) systemConfigService.selectAllConfig().get("sms_secret");
-    //     signName = (String) systemConfigService.selectAllConfig().get("sms_sign_name");
-    //     templateCode = (String) systemConfigService.selectAllConfig().get("sms_template_code");
-    //     regionId = (String) systemConfigService.selectAllConfig().get("sms_region_id");
-    //     if (StringUtils.isEmpty(accessKeyId) || StringUtils.isEmpty(secret) || StringUtils.isEmpty(signName) ||
-    //             StringUtils.isEmpty(templateCode) || StringUtils.isEmpty(regionId)) {
-    //         return null;
-    //     }
-    //     DefaultProfile profile = DefaultProfile.getProfile(regionId, accessKeyId, secret);
-    //     IAcsClient client = new DefaultAcsClient(profile);
-    //     this.client = client;
-    //     return client;
-    // }
+  
     // Client初始化方法
 private AsyncClient instance() {
     String accessKeyId = (String) systemConfigService.selectAllConfig().get("sms_access_key_id");
@@ -96,10 +91,24 @@ private AsyncClient instance() {
     }
 }
 
-
+public boolean sendSms(String mobile, String code) {
+    // 检查发送频率
+    Long lastSendTime = lastSendTimeMap.get(mobile);
+    long now = System.currentTimeMillis();
+    if (lastSendTime != null && now - lastSendTime < MIN_INTERVAL) {
+        log.warn("发送过于频繁，请稍后再试 - 手机号: {}", mobile);
+        return false;
+    }
+    
+    boolean result = doSendSms(mobile, code);
+    if (result) {
+        lastSendTimeMap.put(mobile, now);
+    }
+    return result;
+}
 
     // 发短信
-    public boolean sendSms(String mobile, String code) {
+    public boolean doSendSms(String mobile, String code) {
         try {
             if (StringUtils.isEmpty(mobile)) return false;
             
