@@ -122,9 +122,13 @@ public class IndexApiController extends BaseApiController {
 //        ApiAssert.notTrue(!_captcha.equalsIgnoreCase(captcha), "验证码不正确");
         ApiAssert.notEmpty(username, "请输入用户名");
         ApiAssert.notEmpty(password, "请输入密码");
-        ApiAssert.notEmpty(email, "请输入邮箱");
+      //  ApiAssert.notEmpty(email, "请输入邮箱");
+        /**
         ApiAssert.isTrue(StringUtil.check(username, StringUtil.USERNAMEREGEX), "用户名只能为a-z,A-Z,0-9组合且2-16位");
-        ApiAssert.isTrue(StringUtil.check(email, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");
+        ApiAssert.isTrue(StringUtil.check(email, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");**/
+        // 把邮箱当用户名
+        ApiAssert.isTrue(StringUtil.check(username, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");
+
         User user = userService.selectByUsername(username);
         ApiAssert.isNull(user, "用户名已存在");
         User emailUser = userService.selectByEmail(email);
@@ -250,7 +254,14 @@ public class IndexApiController extends BaseApiController {
         return success(resultMap);
     }
 
- 
+   // 获取系统开放状态
+   @ApiOperation(value = "获取系统开放状态")
+   @GetMapping("/openStatus")
+   public Result openStatus() {
+    String openStatus = systemConfigService.selectAllConfig().get("open_status").toString();
+   return success(Integer.parseInt(openStatus));
+   }
+
 
 
 }
