@@ -85,8 +85,10 @@ public class IndexApiController extends BaseApiController {
 //        String _captcha = (String) session.getAttribute("_captcha");
 //        ApiAssert.notTrue(_captcha == null || StringUtils.isEmpty(captcha), "请输入验证码");
 //        ApiAssert.notTrue(!_captcha.equalsIgnoreCase(captcha), "验证码不正确");
-        ApiAssert.notEmpty(username, "请输入用户名");
+        ApiAssert.notEmpty(username, "请输入邮箱");
         ApiAssert.notEmpty(password, "请输入密码");
+        // 把邮箱当用户名
+        ApiAssert.isTrue(StringUtil.check(username, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");
         User user = userService.selectByUsername(username);
         ApiAssert.notNull(user, "用户不存在");
         ApiAssert.isTrue(new BCryptPasswordEncoder().matches(password, user.getPassword()), "用户名或密码不正确");
@@ -128,6 +130,9 @@ public class IndexApiController extends BaseApiController {
         ApiAssert.isTrue(StringUtil.check(email, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");**/
         // 把邮箱当用户名
         ApiAssert.isTrue(StringUtil.check(username, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");
+        //校验密码
+        ApiAssert.isTrue(StringUtil.check(password, StringUtil.PASSWORDREGEX), "密码只能为小写字母a-z、大写字母A-Z、数字0-9组合,且长度6-16位");
+
 
         User user = userService.selectByUsername(username);
         ApiAssert.isNull(user, "用户名已存在");
