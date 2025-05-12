@@ -54,8 +54,8 @@ public class SystemConfigService implements ISystemConfigService {
         Map<String, Object> map = new LinkedHashMap<>();
         List<SystemConfig> systemConfigs = systemConfigMapper.selectList(null);
         // 先提取出所有父节点
-        List<SystemConfig> p = systemConfigs.stream().filter(systemConfig -> systemConfig.getPid() == 0).collect
-                (Collectors.toList());
+        List<SystemConfig> p = systemConfigs.stream().filter(systemConfig -> systemConfig.getPid() == 0)
+                .collect(Collectors.toList());
         // 遍历父节点取父节点下的所有子节点
         p.forEach(systemConfig -> {
             List<SystemConfig> collect = systemConfigs.stream()
@@ -110,5 +110,11 @@ public class SystemConfigService implements ISystemConfigService {
                 .filter(systemConfig -> systemConfig.getPid() != 0 && !systemConfig.getType().equals("password"))
                 .collect(Collectors.toMap(SystemConfig::getKey, SystemConfig::getValue));
         return SYSTEM_CONFIG_WITHOUT_PASSWORD;
+    }
+
+    @Override
+    public void clearCache() {
+        SYSTEM_CONFIG = null;
+        SYSTEM_CONFIG_WITHOUT_PASSWORD = null;
     }
 }

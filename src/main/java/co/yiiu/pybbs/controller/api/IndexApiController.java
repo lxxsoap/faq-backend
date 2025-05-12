@@ -258,6 +258,7 @@ public class IndexApiController extends BaseApiController {
    @ApiOperation(value = "获取系统开放状态")
    @GetMapping("/openStatus")
    public Result openStatus() {
+    systemConfigService.clearCache();
     String openStatus = systemConfigService.selectAllConfig().get("open_status").toString();
    return success(Integer.parseInt(openStatus));
    }

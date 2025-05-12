@@ -25,4 +25,7 @@ public interface ISystemConfigService {
     void updateByKey(String key, SystemConfig systemConfig);
 
     Map<String, String> selectAllConfigWithoutPassword();
+
+    // 清除系统配置缓存
+    void clearCache();
 }
