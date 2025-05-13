@@ -22,9 +22,11 @@ public class FlywayConfig {
     @PostConstruct
     @DependsOn("dataSourceHelper")
     public void migrate() {
-        Flyway flyway = Flyway.configure().dataSource(dataSource).locations("classpath:db/migration",
-                "filesystem:db/migration").baselineOnMigrate(true).load();
-        flyway.migrate();
+        // 禁用 Flyway 迁移，但保留配置类
+        // Flyway flyway =
+        // Flyway.configure().dataSource(dataSource).locations("classpath:db/migration",
+        // "filesystem:db/migration").baselineOnMigrate(true).load();
+        // flyway.migrate();
     }
 
 }
