@@ -6,12 +6,12 @@ import co.yiiu.pybbs.model.User;
 import co.yiiu.pybbs.service.*;
 import co.yiiu.pybbs.util.MyPage;
 import co.yiiu.pybbs.util.Result;
-import co.yiiu.pybbs.model.vo.UserPublicInfoVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +112,8 @@ public class UserApiController extends BaseApiController {
         // 查询用户收藏的话题
         MyPage<Map<String, Object>> collects = collectService.selectByUserId(user.getId(), pageNo, null);
 
+
+
         Map<String, Object> map = new HashMap<>();
         map.put("user", user);
         map.put("collects", collects);
@@ -121,10 +123,10 @@ public class UserApiController extends BaseApiController {
     @ApiOperation(value = "获取用户公开信息")
     @GetMapping("/public/{userId}")
     public Result getUserInfo(@PathVariable Integer userId) {
-        UserPublicInfoVO vo = userService.getPublicUser(userId);
-        if (vo == null) {
+        Map<String, Object> map = userService.getPublicUser(userId);
+        if (map == null) {
             return error("用户不存在");
         }
-        return success(vo);
+        return success(map);
     }
 }

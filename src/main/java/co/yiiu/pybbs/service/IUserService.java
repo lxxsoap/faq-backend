@@ -2,9 +2,9 @@ package co.yiiu.pybbs.service;
 
 import co.yiiu.pybbs.model.User;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import co.yiiu.pybbs.model.vo.UserPublicInfoVO;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by tomoya.
@@ -53,11 +53,6 @@ public interface IUserService {
     // 删除redis缓存
     void delRedisUser(User user);
 
-    /**
-     * 获取用户公开信息
-     * 
-     * @param userId 用户ID
-     * @return 用户公开信息
-     */
-    UserPublicInfoVO getPublicUser(Integer userId);
+    // 获取用户公开信息
+    Map<String, Object> getPublicUser(Integer userId);
 }
