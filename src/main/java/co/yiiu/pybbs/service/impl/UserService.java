@@ -27,10 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.HashMap;
+
 import co.yiiu.pybbs.model.Tag;
-import co.yiiu.pybbs.model.Topic;
-import co.yiiu.pybbs.model.Comment;
+import co.yiiu.pybbs.model.vo.UserPublicInfoVO;
 
 /**
  * Created by tomoya.
@@ -118,6 +117,7 @@ public class UserService implements IUserService {
         user.setBio(bio);
         user.setWebsite(website);
         user.setActive(systemConfigService.selectAllConfig().get("user_need_active").equals("0"));
+        user.setNickName(username);
         userMapper.insert(user);
         if (needActiveEmail) {
             // 发送激活邮件
@@ -281,7 +281,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Map<String, Object> getPublicUser(Integer userId) {
+    public UserPublicInfoVO getPublicUser(Integer userId) {
         User user = this.selectById(userId);
         if (user == null)
             return null;
@@ -306,13 +306,13 @@ public class UserService implements IUserService {
             topic.put("tags", tags);
         }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("user", user);
-        map.put("topicCount", topicCount); // 发布数
-        map.put("commentCount", commentCount); // 回答数
-        map.put("likeCount", likeCount); // 获赞与讨论数
-        map.put("topics", topics); // 发布的话题列表
+        UserPublicInfoVO vo = new UserPublicInfoVO();
+        vo.setUser(user);
+        vo.setTopicCount(topicCount);
+        vo.setCommentCount(commentCount);
+        vo.setLikeCount(likeCount);
+        vo.setTopics(topics);
 
-        return map;
+        return vo;
     }
 }
