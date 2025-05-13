@@ -118,6 +118,7 @@ public class UserService implements IUserService {
         user.setBio(bio);
         user.setWebsite(website);
         user.setActive(systemConfigService.selectAllConfig().get("user_need_active").equals("0"));
+        user.setNickName(username);
         userMapper.insert(user);
         if (needActiveEmail) {
             // 发送激活邮件

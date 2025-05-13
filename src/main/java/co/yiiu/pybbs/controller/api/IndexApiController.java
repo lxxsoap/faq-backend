@@ -131,7 +131,7 @@ public class IndexApiController extends BaseApiController {
         // 把邮箱当用户名
         ApiAssert.isTrue(StringUtil.check(username, StringUtil.EMAILREGEX), "请输入正确的邮箱地址");
         //校验密码
-        ApiAssert.isTrue(StringUtil.check(password, StringUtil.PASSWORDREGEX), "密码只能为小写字母a-z、大写字母A-Z、数字0-9组合,且长度6-16位");
+        ApiAssert.isTrue(StringUtil.check(password, StringUtil.PASSWORDREGEX), "请输入6-16位字符,可包含字母大小写和数字");
 
 
         User user = userService.selectByUsername(username);
